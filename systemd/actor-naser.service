@@ -1,0 +1,12 @@
+[Unit]
+Description=Actor Naser Discord.py bot
+
+[Service]
+User=jacob
+Environment=CONFIG_PATH=/home/jacob/discord/bots/actor/config/config_naser.json
+WorkingDirectory=/home/jacob/discord/bots/actor/
+ExecStart=/home/jacob/.local/bin/pipenv run python3 -u /home/jacob/discord/bots/actor/bot/main.py
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

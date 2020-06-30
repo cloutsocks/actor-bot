@@ -11,14 +11,7 @@ import discord
 from discord.ext import commands
 
 import checks
-
-initial_extensions = (
-    'common',
-    'error',
-    'config',
-    'actor'
-    # 'mystery',
-)
+from config import load_config
 
 
 def command_prefixes(bot, message):
@@ -27,7 +20,7 @@ def command_prefixes(bot, message):
 
 # naomi invite https://discordapp.com/api/oauth2/authorize?client_id=720740582288261150&permissions=2146827601&scope=bot
 # rosa invite https://discordapp.com/api/oauth2/authorize?client_id=720741045008072704&permissions=2146827601&scope=bot
-
+# dev kooper invite https://discordapp.com/api/oauth2/authorize?client_id=727284999585267753&permissions=2146827601&scope=bot
 
 class ActorBot(commands.Bot):
     def __init__(self):
@@ -41,7 +34,19 @@ class ActorBot(commands.Bot):
         self.wfr = {}
         self.wfm = {}
 
-        for extension in initial_extensions:
+        load_config(self)
+
+        self.bound_extensions = [
+            'common',
+            'error',
+            'config',
+            'actor'
+        ]
+
+        if self.config['actor'] == 'naomi':
+            self.bound_extensions.append('naomi')
+
+        for extension in self.bound_extensions:
             try:
                 self.load_extension(extension)
             except Exception as e:
