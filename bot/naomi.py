@@ -3,7 +3,7 @@ import discord
 from discord.ext import commands
 
 arrow = '<:arrow:727614211932291183>'
-welcome_text = f'''Oh! A new student! Welcome to KO_OP, a place to chat about Goodbye Volcano High and hang out with friends. I'll give you a quick tour:
+welcome_text = f'''Oh! A new student! Welcome to KO_OP, a place to chat about _Goodbye Volcano High_ and hang out with friends. I'll give you a quick tour:
 
 {arrow} <#372482304867827714>
 Read the rules before posting
@@ -12,7 +12,7 @@ Read the rules before posting
 Customize your Student ID with roles
 
 {arrow} <#487721645738426371>
-Keep up with announcements:
+Keep up with announcements
 
 {arrow} <#720742318331658261>
 Find out about _Goodbye Volcano High_
