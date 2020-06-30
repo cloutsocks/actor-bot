@@ -118,11 +118,11 @@ class Actor(commands.Cog):
                     dialog = line[len(label):].strip()
                     mine = actor == self.bot.config["actor"]
                     r = random.uniform(0.8, 1.2)
-                    typing = typing_time(dialog, 0.035) * r
+                    typing = typing_time(dialog, 0.04) * r
                     msg_queue.append((mine, t, typing, dialog))
 
                     t += typing
-                    t += random.uniform(2, 3)
+                    t += random.uniform(2, 4)
 
         if not msg_queue:
             return
