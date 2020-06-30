@@ -36,12 +36,17 @@ class Actor(commands.Cog):
 
         content = content[len(match.group(0)):]
         lines = content.split('\n')
+        sent = False
         for line in lines:
             line = line.strip()
             actor = f'{self.bot.config["actor"]}:'
             if line.lower().startswith(actor):
                 dialog = line[len(actor):].strip()
+                sent = True
                 await cn.send(dialog)
+
+        if sent:
+            await message.add_reaction('✅')
 
 
 
