@@ -82,7 +82,7 @@ async def _reloadall(ctx, arg=None):
     bot.wfm = {}
     bot.wfr = {}
     try:
-        for extension in initial_extensions:
+        for extension in bot.bound_extensions:
             bot.unload_extension(extension)
             bot.load_extension(extension)
     except Exception as e:
