@@ -109,6 +109,7 @@ class Actor(commands.Cog):
 
         t = 0
         msg_queue = []
+
         for line in lines:
             line = line.strip()
             for actor in actors:
@@ -117,11 +118,11 @@ class Actor(commands.Cog):
                     dialog = line[len(label):].strip()
                     mine = actor == self.bot.config["actor"]
                     r = random.uniform(0.8, 1.2)
-                    typing = typing_time(dialog, 0.025) * r
+                    typing = typing_time(dialog, 0.035) * r
                     msg_queue.append((mine, t, typing, dialog))
 
                     t += typing
-                    t += random.uniform(1, 2)
+                    t += random.uniform(2, 3)
 
         if not msg_queue:
             return
@@ -135,7 +136,6 @@ class Actor(commands.Cog):
 
         if im_sending:
             await message.add_reaction('✅')
-
 
     # @checks.is_jacob()
     # @commands.command()
