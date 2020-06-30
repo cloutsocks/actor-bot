@@ -121,8 +121,8 @@ class Actor(commands.Cog):
                     typing = typing_time(dialog, 0.04) * r
                     msg_queue.append((mine, t, typing, dialog))
 
-                    t += typing
-                    t += random.uniform(2, 4)
+                    t += typing * 2
+                    t += random.uniform(1, 2)
 
         if not msg_queue:
             return
