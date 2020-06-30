@@ -121,17 +121,20 @@ class Actor(commands.Cog):
                     msg_queue.append((mine, t, typing, dialog))
 
                     t += typing
-                    t += random.uniform(0.5, 2)
+                    t += random.uniform(1, 2)
 
         if not msg_queue:
             return
 
+        im_sending = False
         for entry in msg_queue:
             mine, t, typing, dialog = entry
             if mine:
+                im_sending = True
                 self.bot.loop.create_task(actor_send(cn, dialog, t, typing))
 
-        await message.add_reaction('✅')
+        if im_sending:
+            await message.add_reaction('✅')
 
 
     # @checks.is_jacob()
