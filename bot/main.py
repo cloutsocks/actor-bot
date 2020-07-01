@@ -22,6 +22,9 @@ def command_prefixes(bot, message):
 # rosa invite https://discordapp.com/api/oauth2/authorize?client_id=720741045008072704&permissions=2146827601&scope=bot
 # dev kooper invite https://discordapp.com/api/oauth2/authorize?client_id=727284999585267753&permissions=2146827601&scope=bot
 
+
+
+
 class ActorBot(commands.Bot):
     def __init__(self):
         super().__init__(command_prefix=command_prefixes)
