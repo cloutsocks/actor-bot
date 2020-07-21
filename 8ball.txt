@@ -1,0 +1,44 @@
+fang:
+
+[affirmative]
+sure.
+could be cool.
+hell. yes.
+
+[non-commital]
+I mean. I guess?
+who cares.
+
+[negative]
+no. what? no.
+no way.
+
+
+trish:
+
+[affirmative]
+ya!!
+ohhhhh yes definitely
+ya i think so
+u kno it
+
+[non-commital]
+hmmmmmm
+8ball,,
+idk what do u think?
+maybe!!
+hard 2 say
+lmfao
+askdlfj;sdf no
+
+[negative]
+omg no lol
+not nessesarily
+ew no
+
+
+
+
+
+
+

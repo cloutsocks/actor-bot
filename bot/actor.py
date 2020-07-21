@@ -76,7 +76,7 @@ class Actor(commands.Cog):
                 label = f'{actor}:'
                 if line.lower().startswith(label):
                     dialog = line[len(label):].strip()
-                    mine = actor == self.bot.config["actor"]
+                    mine = actor == self.bot.config['actor']
                     r = random.uniform(0.8, 1.2)
                     typing = typing_time(dialog, 0.05) * r
                     msg_queue.append((mine, t, typing, dialog))

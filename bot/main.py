@@ -43,11 +43,14 @@ class ActorBot(commands.Bot):
             'common',
             'error',
             'config',
-            'actor'
+            'actor',
         ]
 
         if self.config['actor'] == 'naomi':
             self.bound_extensions.append('naomi')
+
+        if 'eightball' in self.config:
+            self.bound_extensions.append('eightball')
 
         for extension in self.bound_extensions:
             try:
@@ -77,7 +80,7 @@ async def on_ready():
     await bot.change_presence(activity=playing)
 
 
-@bot.command(name='reloadall', aliases=['reall', 'ra'])
+@bot.command(name='reloadall', aliases=['reall', 'ra', 'rt'])
 @checks.is_jacob()
 async def _reloadall(ctx, arg=None):
     """Reloads all modules."""
