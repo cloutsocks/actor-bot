@@ -68,7 +68,7 @@ class EightBall(commands.Cog):
                     'no way.',
                 ])
                 typing = typing_time(response, 0.05) * random.uniform(0.8, 1.2)
-                await actor_send(ctx.channel, response, random.uniform(0.5, 1.5), typing)
+                await actor_send(ctx.channel, response, 0, typing)
                 return
 
 
