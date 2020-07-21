@@ -38,7 +38,6 @@ class EightBall(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @checks.is_mod()
     @commands.command(name='8ball')
     async def eightball(self, ctx, *, arg):
         r = random.Random(ctx.message.id)
