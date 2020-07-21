@@ -52,6 +52,7 @@ class ActorBot(commands.Bot):
         if 'eightball' in self.config:
             self.bound_extensions.append('eightball')
 
+        print(f'Loading extensions: {self.bound_extensions}')
         for extension in self.bound_extensions:
             try:
                 self.load_extension(extension)

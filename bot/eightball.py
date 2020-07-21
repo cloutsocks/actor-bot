@@ -42,7 +42,7 @@ class EightBall(commands.Cog):
     async def eightball(self, ctx, *, arg):
         r = random.Random(ctx.message.id)
         actor = r.choice(actors)
-        if actor is self.bot.config['actor']:
+        if actor == self.bot.config['actor']:
             if actor == 'trish':
                 response = random.choice([
                     'hmmmmmm',
