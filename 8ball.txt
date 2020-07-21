@@ -37,7 +37,21 @@ not nessesarily
 ew no
 
 
+naomi:
 
+[affirmative]
+Absolutely.
+I think so, yes!
+Oh! That sounds right.
+
+[non-commital]
+I'm not sure I have an opinion on the matter.
+I'm so sorry, I'm afraid I don't know!
+
+[negative]
+I don't think so.
+I would have to say no.
+Absolutely not.
 
 
 

@@ -21,6 +21,7 @@ def typing_time(msg, seconds_per_char):
 actors = [
     'fang',
     'trish',
+    'naomi'
 ]
 
 
@@ -54,7 +55,7 @@ class EightBall(commands.Cog):
                     'askdlfj;sdf no',
                 ])
                 typing = typing_time(response, 0.05) * random.uniform(0.8, 1.2)
-                await actor_send(ctx.channel, response, random.uniform(0.5, 1.5), typing)
+                await actor_send(ctx.channel, response, 0, typing)
                 return
 
             if actor == 'fang':
@@ -70,6 +71,22 @@ class EightBall(commands.Cog):
                 typing = typing_time(response, 0.05) * random.uniform(0.8, 1.2)
                 await actor_send(ctx.channel, response, 0, typing)
                 return
+
+            if actor == 'naomi':
+                response = random.choice([
+                    'Absolutely.',
+                    'I think so, yes!',
+                    'Oh! That sounds right.',
+                    'I\'m not sure I have an opinion on the matter.',
+                    'I\'m so sorry, I\'m afraid I don\'t know!',
+                    'I don\'t think so.',
+                    'I would have to say no.',
+                    'Absolutely not.',
+                ])
+                typing = typing_time(response, 0.05) * random.uniform(0.8, 1.2)
+                await actor_send(ctx.channel, response, 0, typing)
+                return
+
 
 
 
