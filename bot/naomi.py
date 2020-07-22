@@ -34,7 +34,8 @@ class Naomi(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_join(self, member):
-        await member.send(welcome_text)
+        if member.guild == self.bot.guild:
+            await member.send(welcome_text)
 
 
 def setup(bot):
