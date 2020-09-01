@@ -44,6 +44,21 @@ class Actor(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    @checks.is_mod()
+    @commands.command()
+    async def edit(self, ctx, *, arg=''):
+        cid, mid, text = arg.split(' ', 2)
+        cid = int(cid)
+        mid = int(mid)
+
+        channel = self.bot.get_channel(cid)
+        message = await channel.fetch_message(mid)
+
+        old_text = message.content
+
+        await message.edit(content=text)
+        await ctx.send(f'''Done, updated from ```{old_text}``` to ```{text}```''')
+
     @commands.Cog.listener()
     async def on_message(self, message):
         if message.author == self.bot.user:
