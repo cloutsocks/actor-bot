@@ -49,6 +49,9 @@ class ActorBot(commands.Bot):
         if self.config['actor'] == 'naomi':
             self.bound_extensions.append('naomi')
 
+        if self.config['actor'] == 'stella':
+            self.bound_extensions.append('stella')
+
         if 'eightball' in self.config:
             self.bound_extensions.append('eightball')
 
@@ -72,6 +75,11 @@ bot = ActorBot()
 #     return ctx.message.author.id == 232650437617123328 or ctx.message.author.id == 340838512834117632
 
 
+@bot.check
+async def no_dms(ctx):
+    return ctx.guild is not None
+
+
 @bot.event
 async def on_ready():
     print('Logged in as {0.user}'.format(bot))
@@ -81,7 +89,17 @@ async def on_ready():
     await bot.change_presence(activity=playing)
 
 
-@bot.command(name='reloadall', aliases=['reall', 'ra', 'rt'])
+@bot.event
+async def on_reaction_add(reaction, user):
+    if user == bot.user:
+        return
+
+    if user.id in bot.wfr and bot.wfr[user.id].wfr_message.id == reaction.message.id:
+        await bot.wfr[user.id].handle_reaction(reaction, user)
+        await reaction.message.remove_reaction(reaction, user)
+
+
+@bot.command(name='reloadall', aliases=['reall', 'ra', 'rt', 'rs'])
 @checks.is_jacob()
 async def _reloadall(ctx, arg=None):
     """Reloads all modules."""
