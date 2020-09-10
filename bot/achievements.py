@@ -32,10 +32,12 @@ class Achievements(commands.Cog):
         msg = f'{msg}{FIELD_BREAK}'
 
         sent = await channel.send(msg)
+        log = await self.bot.get_channel(753419964035235890).send(msg)
+
         for reaction in ['<:GVHtrishyay:721410319494152243>', '<:lovehonk:722884312378376192>']:
             await sent.add_reaction(reaction.strip('<>'))
+            await log.add_reaction(reaction.strip('<>'))
 
-        await self.bot.get_channel(753419964035235890).send(msg)
 
 def setup(bot):
     achievements = Achievements(bot)
