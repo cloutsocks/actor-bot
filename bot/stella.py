@@ -524,6 +524,7 @@ def create_tables():
 class Stella(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.paused = False
 
         if self.bot.is_ready():
             self.bot.loop.create_task(self.on_load())
@@ -556,6 +557,9 @@ class Stella(commands.Cog):
     # @checks.is_mod()
     @commands.command()
     async def tarot(self, ctx, *, arg=''):
+        if self.paused:
+            await ctx.send('oh sorry! i’m adding some new features to my deck so i’ll be back soon!')
+
         session = TarotSession(self.bot, ctx.author)
         session.load_from_db()
         await session.send_initial_prompt(ctx)
@@ -564,6 +568,8 @@ class Stella(commands.Cog):
     @commands.command()
     async def make_db(self, ctx):
         create_tables()
+
+
 
     @checks.is_jacob()
     @commands.command()

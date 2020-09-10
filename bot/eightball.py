@@ -24,6 +24,8 @@ actors = [
     'naomi'
 ]
 
+filter_hw = re.compile(r'\bhw\b|home\s?work')
+
 
 async def actor_send(cn, msg, delay, typing):
     if delay:
@@ -40,6 +42,10 @@ class EightBall(commands.Cog):
 
     @commands.command(name='8ball')
     async def eightball(self, ctx, *, arg):
+
+        if (match := filter_hw.search(arg)) is not None:
+            return
+
         r = random.Random(ctx.message.id)
         actor = r.choice(actors)
         if actor == self.bot.config['actor']:
