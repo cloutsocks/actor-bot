@@ -541,7 +541,7 @@ class Stella(commands.Cog):
             if row.best_streak >= 7:
                 member = self.bot.guild.get_member(row.discord_id)
                 if member:
-                    await self.bot.achievements.award_role_achievement(self.bot.get_channel(753427783405010965), member, role_reflective,
+                    await self.bot.achievements.award_role_achievement(self.bot.get_channel(720742722155315331), member, role_reflective,
                                                                    how='_Get a daily `.tarot` streak of at least **7**_')
 
     async def on_load(self):

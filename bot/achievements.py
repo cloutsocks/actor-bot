@@ -9,6 +9,8 @@ from discord.ext import commands
 
 import checks
 
+from common import FIELD_BREAK
+
 
 class Achievements(commands.Cog):
     def __init__(self, bot):
@@ -19,13 +21,15 @@ class Achievements(commands.Cog):
         if role in member.roles:
             return
 
-        # await member.add_roles(role)
+        await member.add_roles(role)
 
         if msg is None:
             msg = f'{member.mention} has earned the **{role.name}** achievement role!'
 
         if how is not None:
             msg = f'{msg}\n{how}'
+
+        msg = f'{msg}\n{FIELD_BREAK}'
 
         await channel.send(msg)
         await self.bot.get_channel(753419964035235890).send(msg)
