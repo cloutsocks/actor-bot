@@ -559,6 +559,7 @@ class Stella(commands.Cog):
     async def tarot(self, ctx, *, arg=''):
         if self.paused:
             await ctx.send('oh sorry! i’m adding some new features to my deck so i’ll be back soon!')
+            return
 
         session = TarotSession(self.bot, ctx.author)
         session.load_from_db()
