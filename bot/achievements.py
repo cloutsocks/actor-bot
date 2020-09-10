@@ -19,7 +19,7 @@ class Achievements(commands.Cog):
         if role in member.roles:
             return
 
-        await member.add_roles(role)
+        # await member.add_roles(role)
 
         if msg is None:
             msg = f'{member.mention} has earned the **{role.name}** achievement role!'
