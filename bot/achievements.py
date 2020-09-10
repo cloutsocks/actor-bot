@@ -9,7 +9,7 @@ from discord.ext import commands
 
 import checks
 
-from common import FIELD_BREAK
+from common import FIELD_BREAK, RAINBOW_PALETTE
 
 
 class Achievements(commands.Cog):
@@ -23,20 +23,23 @@ class Achievements(commands.Cog):
 
         await member.add_roles(role)
 
+        description = msg
         if msg is None:
-            msg = f'{member.mention} has earned the **{role.name}** achievement role!'
+            description = f' 🎊 ✨   {member.mention} has earned the **{role.name}** achievement role!   ✨ 🎊 '
 
         if how is not None:
-            msg = f'{msg}\n{how}'
+            description = f'{description}\n{how}'
 
-        msg = f'{msg}{FIELD_BREAK}'
+        color = random.choice(RAINBOW_PALETTE)
+        e = discord.Embed(description=description, color=color)
 
-        sent = await channel.send(msg)
-        log = await self.bot.get_channel(753419964035235890).send(msg)
+        sent = await channel.send('', embed=e)
+        log = await self.bot.get_channel(753419964035235890).send('', embed=e)
 
         for reaction in ['<:GVHtrishyay:721410319494152243>', '<:lovehonk:722884312378376192>']:
             await sent.add_reaction(reaction.strip('<>'))
             await log.add_reaction(reaction.strip('<>'))
+
 
 
 def setup(bot):
