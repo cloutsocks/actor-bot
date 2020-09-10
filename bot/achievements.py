@@ -31,5 +31,6 @@ class Achievements(commands.Cog):
         await self.bot.get_channel(753419964035235890).send(msg)
 
 def setup(bot):
-    config_cog = Achievements(bot)
-    bot.add_cog(config_cog)
+    achievements = Achievements(bot)
+    bot.add_cog(achievements)
+    bot.achievements = achievements
