@@ -535,7 +535,7 @@ class Stella(commands.Cog):
     @checks.is_jacob()
     @commands.command()
     async def testrole(self, ctx):
-        role_reflective = self.bot.get_role(751480955365228694)
+        role_reflective = self.bot.guild.get_role(751480955365228694)
         await self.bot.achievements.award_role_achievement(ctx.channel, ctx.author, role_reflective, how='_Get a daily `.tarot` streak of at least **7**_')
 
     async def on_load(self):
