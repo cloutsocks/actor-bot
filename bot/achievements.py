@@ -29,7 +29,7 @@ class Achievements(commands.Cog):
         if how is not None:
             msg = f'{msg}\n{how}'
 
-        msg = f'{msg}\n{FIELD_BREAK}'
+        msg = f'{msg}{FIELD_BREAK}'
 
         await channel.send(msg)
         await self.bot.get_channel(753419964035235890).send(msg)
