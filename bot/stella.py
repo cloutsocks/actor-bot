@@ -565,11 +565,15 @@ class Stella(commands.Cog):
         await session.send_initial_prompt(ctx)
 
     @checks.is_jacob()
+    @commands.command(name='tarotpause')
+    async def tarot_pause(self, ctx):
+        self.paused = not self.paused
+        await ctx.send(f'`paused = {self.paused}`')
+
+    @checks.is_jacob()
     @commands.command()
     async def make_db(self, ctx):
         create_tables()
-
-
 
     @checks.is_jacob()
     @commands.command()
