@@ -25,7 +25,7 @@ class Achievements(commands.Cog):
             msg = f'{member.mention} has earned the **{role.name}** achievement role!'
 
         if how is not None:
-            msg = f'{msg}\n*{how}'
+            msg = f'{msg}\n{how}'
 
         await channel.send(msg)
         await self.bot.get_channel(753419964035235890).send(msg)
