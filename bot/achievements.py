@@ -16,7 +16,7 @@ class Achievements(commands.Cog):
 
     async def award_role_achievement(self, channel, member, role, msg=None, how=None):
 
-        if role in member.role:
+        if role in member.roles:
             return
 
         await member.add_role(role)
