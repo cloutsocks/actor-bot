@@ -30,7 +30,7 @@ class Achievements(commands.Cog):
             msg = f'{msg}\n{how}'
 
         msg = f'{msg}{FIELD_BREAK}'
-        
+
         sent = await channel.send(msg)
         for reaction in ['<:GVHtrishyay:721410319494152243>', '<:lovehonk:722884312378376192>']:
             await sent.add_reaction(reaction.strip('<>'))

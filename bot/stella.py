@@ -532,17 +532,17 @@ class Stella(commands.Cog):
     async def on_ready(self):
         await self.on_load()
 
-    @checks.is_jacob()
-    @commands.command()
-    async def catchup(self, ctx):
-        role_reflective = self.bot.guild.get_role(751480955365228694)
-
-        for row in Tarot.select():
-            if row.best_streak >= 7:
-                member = self.bot.guild.get_member(row.discord_id)
-                if member:
-                    await self.bot.achievements.award_role_achievement(self.bot.get_channel(720742722155315331), member, role_reflective,
-                                                                   how='_Get a daily `.tarot` streak of at least **7**_')
+    # @checks.is_jacob()
+    # @commands.command()
+    # async def catchup(self, ctx):
+    #     role_reflective = self.bot.guild.get_role(751480955365228694)
+    #
+    #     for row in Tarot.select():
+    #         if row.best_streak >= 7:
+    #             member = self.bot.guild.get_member(row.discord_id)
+    #             if member:
+    #                 await self.bot.achievements.award_role_achievement(self.bot.get_channel(720742722155315331), member, role_reflective,
+    #                                                                how='_Get a daily `.tarot` streak of at least **7**_')
 
     async def on_load(self):
         for card in cards:
