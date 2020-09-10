@@ -841,7 +841,7 @@ TMI though, sorry. Where was I? What I'm trying to say is that **the Tarot can b
 
             if self.tarot_row.daily_streak == 7:
                 role_reflective = self.bot.guild.get_role(751480955365228694)
-                await self.bot.achievements.award_role_achievement(self.wfr_message, self.member, role_reflective,
+                await self.bot.achievements.award_role_achievement(self.wfr_message.channel, self.member, role_reflective,
                                                                    how='_Get a daily `.tarot` streak of at least **7**_')
 
             self.tarot_row.best_streak = max(self.tarot_row.daily_streak, self.tarot_row.best_streak)
