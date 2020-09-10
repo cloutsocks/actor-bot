@@ -33,6 +33,7 @@ class ActorBot(commands.Bot):
 
         self.config = None
         self.actor = None
+        self.achievements = None
 
         self.wfr = {}
         self.wfm = {}
@@ -44,6 +45,7 @@ class ActorBot(commands.Bot):
             'error',
             'config',
             'actor',
+            'achievements',
         ]
 
         if self.config['actor'] == 'naomi':

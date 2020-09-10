@@ -355,6 +355,7 @@ If you're not quite at this point of accomplishment, this card is letting you kn
 This card is letting us know that we may need to do some personal work—whether it's through writing down your feelings or talking to someone—to sharpen our understanding of where we want to be. When the World card is reversed, it can mean that you're at the end of a marathon of sorts, but for whatever reason, you can't get your claws over the finish line. But think of what's on the other side!! Gatorade! High fives! Celebration! So don't stop now, friend, keep going!''',
      'https://i.imgur.com/t3FQeaO.png', 0x3CC5FF],
 ]
+
 daily_reading = {
     'title': 'Daily Reading',
     'emoji': '<:stella:749318176508215367>',
@@ -512,6 +513,7 @@ class Tarot(BaseModel):
     daily_streak = IntegerField(default=0)
     best_streak = IntegerField(default=0)
     n = IntegerField(default=0)
+    n_daily = IntegerField(default=0)
 
 
 def create_tables():
@@ -529,6 +531,12 @@ class Stella(commands.Cog):
     @commands.Cog.listener()
     async def on_ready(self):
         await self.on_load()
+
+    @checks.is_jacob()
+    @commands.command()
+    async def testrole(self, ctx):
+        role_reflective = self.bot.get_role(751480955365228694)
+        await self.bot.achievements.award_role_achievement(ctx.channel, ctx.author, role_reflective, how='_Get a daily `.tarot` streak of at least **7**_')
 
     async def on_load(self):
         for card in cards:
@@ -652,6 +660,7 @@ class TarotSession(object):
         for reaction in reactions:
             await self.wfr_message.add_reaction(reaction.strip('<>'))
             self.bot.wfr[self.member.id] = self
+
 
     async def restart(self):
         await self.wfr_message.clear_reactions()
