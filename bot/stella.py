@@ -506,7 +506,7 @@ class BaseModel(Model):
 class Tarot(BaseModel):
     discord_id = IntegerField(unique=True)
     handle = CharField(null=True)
-    guild_id = CharField()
+    guild_id = IntegerField()
     favorite = CharField(null=True)
     daily_draw = CharField(null=True)
     daily_time = IntegerField(null=True)
@@ -879,17 +879,19 @@ TMI though, sorry. Where was I? What I'm trying to say is that **the Tarot can b
         orientation = 'Upright' if orientation == 'U' else 'Reversed'
 
         e = discord.Embed(title=f'''{reading['emoji']} {reading['title']} ({n+1} of {len(self.draw)})''', color=color)
-        if 'text' in reading:
-            e.description = f"_{reading['text']}_"
 
+        notes = ''
         if note:
-            explanation += f'''\n\n_{note}_'''
+            notes += f'''{note}\n\n'''
+
+        if 'text' in reading:
+            e.description = f"{notes}_{reading['text']}_"
 
         if daily:
-            explanation += f'''\n\n_You have been awarded the **{name} • {orientation}** role. Your daily streak is now **{self.tarot_row.daily_streak}**. Your card of the day resets at midnight, EST._'''
+            explanation += f'''_You have been awarded the **{name} • {orientation}** role. Your daily streak is now **{self.tarot_row.daily_streak}**. Your card of the day resets at midnight, EST._'''
 
         explanation += f'''\n\n_Use {ICON_FAVORITE} to mark this card as your **favorite**._'''
-        e.add_field(name=f'{ROMANS[no]}. {name} • {orientation}', value=f'''{tags}\n\n{explanation}''', inline=False)
+        e.add_field(name=f'{ROMANS[no]}. {name} • {orientation}', value=f'''{tags}\n\n{explanation}'''[:1024], inline=False)
         e.set_image(url=image)
         e.set_footer(text=f'🦕 {ROMANS[no]}. {name} • {orientation}')
         return e
