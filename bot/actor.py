@@ -44,6 +44,7 @@ class Actor(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    # todo move to misc
     @checks.is_mod()
     @commands.command()
     async def edit(self, ctx, *, arg=''):

@@ -10,6 +10,7 @@ discord-py = "*"
 unidecode = "*"
 peewee = "*"
 pytz = "*"
+pillow = "*"
 
 [requires]
 python_version = "3.8"

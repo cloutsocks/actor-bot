@@ -370,12 +370,16 @@ daily_reading = {
     ]
 }
 
+
+
+
+
 readings = {
 
 
     'yes_no': {
         'title': 'Yes or No',
-        'emoji': '<:naserconfused:720394002595315763>',
+        'emoji': '<:GVHnaserconfused:721410319209201776>',
         'text': '''Single card reading''',
         'unrevealed': 'https://i.imgur.com/nQqpDXC.png',
         'cards': [
@@ -389,7 +393,7 @@ readings = {
 
     'past_present_future': {
         'title': 'Past, Present, Future',
-        'emoji': '<:fangthinking:720394002636996698>',
+        'emoji': '<:GVHfangthinking:721410319267921931>',
         'text': '''3 card reading to give a general comprehension''',
         'unrevealed': 'https://i.imgur.com/R3ZlZeV.png',
         'cards': [
@@ -413,7 +417,7 @@ readings = {
 
     'sac': {
         'title': 'Situation, Action, Outcome',
-        'emoji': '<:trishplotting:720394002339201075>',
+        'emoji': '<:GVHtrishplotting:721410319561523210>',
         'text': '''3 card spread to understand how you can affect a particular situation''',
         'unrevealed': 'https://i.imgur.com/R3ZlZeV.png',
         'cards': [
@@ -437,7 +441,7 @@ readings = {
 
     'celtic': {
         'title': 'Celtic Cross',
-        'emoji': '<:scared:720394002808963082>',
+        'emoji': '<:GVHrosascared:721410319129247847>',
         'text': '''Comprehensive 10 card reading to get a thorough feel of the issue''',
         'unrevealed': 'https://i.imgur.com/HmwJV9i.png', # 'https://i.imgur.com/uqZl0Bc.png',
     },
@@ -496,7 +500,6 @@ ROMANS = ['0', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI'
 roles = {}
 
 db = SqliteDatabase('gvh.db')
-
 
 class BaseModel(Model):
     class Meta:
@@ -676,7 +679,7 @@ class TarotSession(object):
         reactions += list(reactions_format_map.keys())
         for reaction in reactions:
             await self.wfr_message.add_reaction(reaction.strip('<>'))
-            self.bot.wfr[self.member.id] = self
+        self.bot.wfr[self.member.id] = self
 
 
     async def restart(self):
@@ -803,7 +806,7 @@ TMI though, sorry. Where was I? What I'm trying to say is that **the Tarot can b
 
         for reaction in reactions:
             await self.wfr_message.add_reaction(reaction.strip('<>'))
-            self.bot.wfr[self.member.id] = self
+        self.bot.wfr[self.member.id] = self
 
     '''
     card reveal
