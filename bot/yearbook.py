@@ -57,7 +57,6 @@ class Yearbook(commands.Cog):
         self.load_stickers()
         self.render = Render()
 
-    @checks.is_jacob()
     @commands.command(aliases=['yb'])
     async def yearbook(self, ctx, *, arg=''):
         if self.paused:
