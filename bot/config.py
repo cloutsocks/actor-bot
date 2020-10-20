@@ -13,7 +13,12 @@ def load_config(bot):
     with open(os.environ.get('CONFIG_PATH', '../config/config.json')) as f:
         bot.config = json.load(f)
 
-        bot.config['guild'] = int(bot.config['guild'])
+        for key in ['guild', 'interop_cn']:
+            try:
+                bot.config[key] = int(bot.config[key])
+            except Exception:
+                pass
+
         for key in ['creator_ids', 'admin_ids']:
             bot.config[key] = [int(val) for val in bot.config[key]]
 

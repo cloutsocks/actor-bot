@@ -11,6 +11,8 @@ unidecode = "*"
 peewee = "*"
 pytz = "*"
 pillow = "*"
+fuzzywuzzy = "*"
+python-levenshtein = "*"
 
 [requires]
 python_version = "3.8"

@@ -23,11 +23,13 @@ def command_prefixes(bot, message):
 # dev kooper invite https://discordapp.com/api/oauth2/authorize?client_id=727284999585267753&permissions=2146827601&scope=bot
 
 
-
-
 class ActorBot(commands.Bot):
     def __init__(self):
-        super().__init__(command_prefix=command_prefixes)
+
+        intents = discord.Intents.default()  # All but the two privileged ones
+        intents.members = True  # Subscribe to the Members intent
+
+        super().__init__(command_prefix=command_prefixes, intents=intents)
 
         self.help_command = None
 
@@ -47,6 +49,9 @@ class ActorBot(commands.Bot):
             'actor',
             'achievements',
         ]
+
+        if self.config['actor'] == 'tester':
+            self.bound_extensions.append('yearbook')
 
         if self.config['actor'] == 'naomi':
             self.bound_extensions.append('naomi')
@@ -71,7 +76,9 @@ class ActorBot(commands.Bot):
         self.wfm.pop(uid, None)
 
 
+
 bot = ActorBot()
+
 
 # @bot.check
 # async def debug_restrict_jacob(ctx):
@@ -100,7 +107,6 @@ async def on_reaction_add(reaction, user):
     if user.id in bot.wfr and bot.wfr[user.id].wfr_message.id == reaction.message.id:
         await bot.wfr[user.id].handle_reaction(reaction, user)
         await reaction.message.remove_reaction(reaction, user)
-
 
 @bot.command(name='reloadall', aliases=['reall', 'ra', 'rt', 'rs'])
 @checks.is_jacob()

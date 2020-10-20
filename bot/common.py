@@ -141,7 +141,7 @@ def resolve_member(server, member_id):
     return member
 
 
-def find_members(bot, server, query, get_ids=False):
+async def find_members(bot, server, query, get_ids=False, use_hackban=False, members_only=False):
     if not query:
         return None
 
@@ -161,8 +161,15 @@ def find_members(bot, server, query, get_ids=False):
             member = resolve_member(server, uid)
             return [member]
         except MemberNotFound:
+            if members_only:
+                return None
             # hackban case
-            return [discord.Object(id=uid)]
+            if use_hackban:
+                return [discord.Object(id=uid)]
+            try:
+                return [await bot.fetch_user(uid)]
+            except (discord.NotFound, discord.HTTPException) as e:
+                return None
 
     found = {}
     query = normalize(query)
@@ -170,40 +177,59 @@ def find_members(bot, server, query, get_ids=False):
         if query == str(m.id) or normalize(str(m)).startswith(query) or query in normalize(m.name) or (m.nick and query in normalize(m.nick)):
             found[m.id] = m
 
-
-
     return list(found.keys()) if get_ids else list(found.values())
 
 
-def get_member_or_search(bot, server, query):
-    found = find_members(bot, server, query)
-
+async def get_member_or_search(bot, server, query, include_pings=True, use_hackban=False, members_only=False):
+    found = await find_members(bot, server, query, use_hackban=use_hackban, members_only=members_only)
     if found and len(found) == 1:
         return True, found[0]
 
-    return False, whois_text(found, show_extra=False)
+    return False, whois_text(bot, found, include_pings=include_pings, show_extra=False)
 
 
-def whois_text(found, show_extra=True):
+def whois_text(bot, found, include_pings=True, show_extra=True, try_embed=False):
     if not found:
         return 'No matching users found.'
 
+    make_embed = try_embed and len(found) == 1
+
     now = datetime.utcnow()
     out = []
+
     for m in found:
-        parts = [f'<@{m.id}>', str(m)]
-        if m.nick:
-            parts.append(f'Nickname: {m.nick}')
+        is_staff = m.id in bot.config['admin_ids']
+        name = f'{m} <:kooper:489893009228300303> [KO_OP]' if is_staff else str(m)
+        if not make_embed and include_pings and not is_staff:
+            parts = [f'<@{m.id}>', name]
+        else:
+            parts = [name]
+
+        try:
+            if m.nick:
+                parts.append(f'Nickname: {m.nick}')
+        except AttributeError:
+            pass
         parts.append(str(m.id))
 
-        if show_extra and m.joined_at and m.created_at:
-            joined_ago = now - m.joined_at
-            created_ago = now - m.created_at
-            parts.append(f'Joined: {simplify_timedelta(joined_ago)} ago')
+        if show_extra:
+            if hasattr(m, 'created_at') and m.created_at:
+                created_at = m.created_at
+            else:
+                created_at = discord.utils.snowflake_time(m.id)
+
+            created_ago = now - created_at
             parts.append(f'Created: {simplify_timedelta(created_ago)} ago')
 
-            if m.joined_at - m.created_at < timedelta(minutes=15):
-                parts.append('⚠ **Joined within 15 minutes of making an account.**')
+            if hasattr(m, 'joined_at') and m.joined_at:
+                joined_ago = now - m.joined_at
+                parts.append(f'Joined: {simplify_timedelta(joined_ago)} ago')
+
+                if m.joined_at - created_at < timedelta(minutes=15):
+                    parts.append('⚠ **Joined within 15 minutes of making an account.**')
+
+        if isinstance(m, discord.User):
+            parts.append('Joined: _Not found on this server._')
 
         out.append('\n'.join(parts))
 
@@ -214,6 +240,10 @@ def whois_text(found, show_extra=True):
     if len(out) > 1997:
         out = out[:1997] + '...'
 
+    if make_embed:
+        m, = found
+        return f'<@{m.id}>', discord.Embed(description=out).set_thumbnail(url=m.avatar_url)
+
     return out
 
 
@@ -221,8 +251,8 @@ async def send_message(ctx, text, message=None, ping=True, error=False, color=No
 
     message = message or ctx.message
 
-    if(error):
-        text = f"ERROR: {text}"
+    # if(error):
+    #     text = f"ERROR: {text}"
 
     e = discord.Embed(description=text)
     if color or error:
