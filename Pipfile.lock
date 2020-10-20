@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "7ca39d0739dec3b3aad9ace5c49865bcc3ac7d9a8429c4caea85bbb523a28408"
+            "sha256": "091df12374fd054dc87f8e5049036ee527a4e95c3148fd12ae3eca5ba9deebdc"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -60,11 +60,11 @@
         },
         "discord-py": {
             "hashes": [
-                "sha256:3acb61fde0d862ed346a191d69c46021e6063673f63963bc984ae09a685ab211",
-                "sha256:e71089886aa157341644bdecad63a72ff56b44406b1a6467b66db31c8e5a5a15"
+                "sha256:2367359e31f6527f8a936751fc20b09d7495dd6a76b28c8fb13d4ca6c55b7563",
+                "sha256:def00dc50cf36d21346d71bc89f0cad8f18f9a3522978dc18c7796287d47de8b"
             ],
             "index": "pypi",
-            "version": "==1.5.0"
+            "version": "==1.5.1"
         },
         "fuzzywuzzy": {
             "hashes": [
@@ -146,13 +146,6 @@
             ],
             "index": "pypi",
             "version": "==8.0.0"
-        },
-        "python-levenshtein": {
-            "hashes": [
-                "sha256:033a11de5e3d19ea25c9302d11224e1a1898fe5abd23c61c7c360c25195e3eb1"
-            ],
-            "index": "pypi",
-            "version": "==0.12.0"
         },
         "pytz": {
             "hashes": [
