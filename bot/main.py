@@ -17,6 +17,7 @@ from config import load_config
 def command_prefixes(bot, message):
     return ['.', ';', ',']
 
+
 # naomi invite https://discordapp.com/api/oauth2/authorize?client_id=720740582288261150&permissions=2146827601&scope=bot
 # rosa invite https://discordapp.com/api/oauth2/authorize?client_id=720741045008072704&permissions=2146827601&scope=bot
 # dev kooper invite https://discordapp.com/api/oauth2/authorize?client_id=727284999585267753&permissions=2146827601&scope=bot
@@ -73,6 +74,10 @@ class ActorBot(commands.Bot):
     def clear_wait_fors(self, uid):
         self.wfr.pop(uid, None)
         self.wfm.pop(uid, None)
+
+    async def process_commands(self, message):
+        ctx = await self.get_context(message)
+        await self.invoke(ctx)
 
 
 

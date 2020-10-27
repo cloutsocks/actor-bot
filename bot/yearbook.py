@@ -52,8 +52,6 @@ class Stickers(BaseModel):
     handle = CharField(null=True)
     guild_id = IntegerField()
     stickers = CharField(null=True)
-    temp = IntegerField()
-
 
 def create_tables():
     with user_db:
