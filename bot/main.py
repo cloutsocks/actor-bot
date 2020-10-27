@@ -15,6 +15,8 @@ from config import load_config
 
 
 def command_prefixes(bot, message):
+    if bot.user.id == 727284999585267753:
+        return ['\'']
     return ['.', ';', ',']
 
 
