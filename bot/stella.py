@@ -499,7 +499,7 @@ ROMANS = ['0', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI'
 
 roles = {}
 
-db = SqliteDatabase('gvh.db')
+db = SqliteDatabase('stella.db')
 
 class BaseModel(Model):
     class Meta:
@@ -518,6 +518,9 @@ class Tarot(BaseModel):
     n = IntegerField(default=0)
     n_daily = IntegerField(default=0)
 
+class Flags(BaseModel):
+    discord_id = IntegerField(unique=True)
+    handle = CharField(null=True)
 
 def create_tables():
     with db:
@@ -573,11 +576,6 @@ class Stella(commands.Cog):
     async def tarot_pause(self, ctx):
         self.paused = not self.paused
         await ctx.send(f'`paused = {self.paused}`')
-
-    @checks.is_jacob()
-    @commands.command()
-    async def make_db(self, ctx):
-        create_tables()
 
     @checks.is_jacob()
     @commands.command()
@@ -910,10 +908,8 @@ TMI though, sorry. Where was I? What I'm trying to say is that **the Tarot can b
             self.tarot_row.favorite = card_name
             self.tarot_row.save()
 
-
-
-
 def setup(bot):
+    create_tables()
     stella = Stella(bot)
     bot.add_cog(stella)
     bot.stella = stella

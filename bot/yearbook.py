@@ -52,6 +52,7 @@ class Stickers(BaseModel):
     handle = CharField(null=True)
     guild_id = IntegerField()
     stickers = CharField(null=True)
+    temp = IntegerField()
 
 
 def create_tables():
@@ -222,7 +223,7 @@ Current Stickers: {sticker_text}'''
         reason = None
         channel = None
         try:
-            cid, reason = rest.split(' ')
+            cid, reason = rest.split(' ', 1)
             channel = self.bot.get_channel(int(cid))
         except (ValueError, TypeError) as e:
             pass
@@ -361,11 +362,6 @@ Current Stickers: {sticker_text}'''
     #     await send_message(ctx, top_matches[0][0])
     #
     #     # await self.view_entry(ctx, no)
-
-    @checks.is_jacob()
-    @commands.command()
-    async def make_stickers_db(self, ctx):
-        create_tables()
 
     def load_stickers(self):
         db = sqlite3.connect('yb_readonly.db')
@@ -976,6 +972,7 @@ class Render:
         return png
 
 def setup(bot):
+    create_tables()
     yearbook = Yearbook(bot)
     bot.add_cog(yearbook)
     bot.yearbook = yearbook
