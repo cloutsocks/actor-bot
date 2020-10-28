@@ -54,6 +54,10 @@ class ActorBot(commands.Bot):
 
         if self.config['actor'] == 'tester':
             self.bound_extensions.append('halloween')
+            self.bound_extensions.append('yearbook')
+
+        if self.config['actor'] == 'rosa':
+            self.bound_extensions.append('halloween')
 
         if self.config['actor'] == 'naomi':
             self.bound_extensions.append('naomi')

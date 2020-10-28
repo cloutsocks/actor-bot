@@ -40,6 +40,12 @@ SLOT = '<:slot:765974192607854683>'
 
 IMG_YB_FRONT = 'https://i.imgur.com/YoP3j3r.png' #'https://i.imgur.com/NTG5s8n.png'
 
+SET_NAMES = [
+    'The Gang\'s All Here',
+    'VVORM DRAMA',
+    'Halloween',
+]
+
 user_db = SqliteDatabase('yb_users.db')
 
 class BaseModel(Model):
@@ -192,7 +198,7 @@ class Yearbook(commands.Cog):
             await ctx.send('Oh! Apologies, I\'m organizing a couple of things! Yearbooks will be back soon.')
             return
 
-        set_keys = ['base', 'vvordrama']
+        set_keys = ['base', 'vvormdrama', 'hw']
         sticker_keys = list(self.nos.keys())
 
         set_text = ' '.join(f'`{key}`' for key in set_keys)
@@ -412,7 +418,7 @@ Current Stickers: {sticker_text}'''
                 # await sent.add_reaction(reaction.strip('<>'))
                 await log.add_reaction(reaction.strip('<>'))
 
-    @commands.command(aliases=['tr'])
+    @commands.command(aliases=['testrender'])
     async def test_render(self, ctx, *, arg=''):
 
         if not arg:
@@ -452,7 +458,8 @@ class YearbookSession(object):
 
         toc = [
             ('toc', None),
-            ('memories', 0)
+            ('memories', 0),
+            ('memories', 1)
         ]
 
         if self.sticker_row.stickers is not None:
@@ -468,38 +475,6 @@ class YearbookSession(object):
         emoji = str(reaction.emoji)
         channel = reaction.message.channel
 
-        # if emoji == ICON_STICKERS:
-        #     await self.show_stickers(channel)
-        # elif emoji == ICON_BACK:
-        #     if self.page_no == 101:
-        #         await self.show_stickers(channel)
-        #     elif self.page_no > 101:
-        #         self.page_no -= 1
-        #         e = self.make_individual_sticker_embed(self.page_no - 100)
-        #         await self.wfr_message.edit(embed=e, file=None)
-        # elif emoji == ICON_FORWARD:
-        #     if self.page_no < 110:
-        #         if self.page_no < 101:
-        #             self.page_no = 101
-        #         else:
-        #             self.page_no += 1
-        #         e = self.make_individual_sticker_embed(self.page_no - 100)
-        #         await self.wfr_message.edit(embed=e, file=None)
-
-
-        # if emoji == ICON_STICKERS:
-        #     await self.view_page_no(80, channel)
-        # elif emoji == ICON_BACK:
-        #     target_page = self.page_no - 1
-        #     if target_page < 101:
-        #         target_page = 80
-        #     await self.view_page_no(target_page, channel)
-        # elif emoji == ICON_FORWARD:
-        #     target_page = self.page_no + 1
-        #     if target_page < 101:
-        #         target_page = 101
-        #     await self.view_page_no(target_page, channel)
-
         if emoji == ICON_BOOK:
             await self.view_page_no(0, channel)
         elif emoji == ICON_STICKERS:
@@ -508,19 +483,6 @@ class YearbookSession(object):
             await self.view_page_no(self.page_no - 1, channel)
         elif emoji == ICON_FORWARD:
             await self.view_page_no(self.page_no + 1, channel)
-
-        # if emoji == ICON_STICKERS:
-        #     await self.view_page_no(80, channel)
-        # elif emoji == ICON_BACK:
-        #     target_page = self.page_no - 1
-        #     if target_page < 101:
-        #         target_page = 80
-        #     await self.view_page_no(target_page, channel)
-        # elif emoji == ICON_FORWARD:
-        #     target_page = self.page_no + 1
-        #     if target_page < 101:
-        #         target_page = 101
-        #     await self.view_page_no(target_page, channel)
 
     def find_page_by_section_name(self, name):
         name = name.lower().strip()
@@ -686,12 +648,11 @@ Sets: **{completed}** / **{total_sets}** (**{(completed / total_sets) * 100:.1f}
 
         e = discord.Embed(title=f'{self.member.name}\'s Yearbook', description=description)
 
-        e.add_field(name=f'Base Set',
-                    value=field_texts[0],
-                    inline=False)
-        e.add_field(name=f'VVORM DRAMA',
-                    value=field_texts[1],
-                    inline=False)
+        for i, set_name in enumerate(SET_NAMES):
+            try:
+                e.add_field(name=set_name, value=field_texts[i], inline=False)
+            except IndexError:
+                pass
 
         e.set_footer(text=f'🖼️ Memories • Page {self.page_no + 1}')
 
@@ -706,7 +667,13 @@ Sets: **{completed}** / **{total_sets}** (**{(completed / total_sets) * 100:.1f}
                 # print('found in cache, set image to ', cache_img)
                 return e
 
-        sticker_keys = [self.yb.stickers[sticker]['key'] for sticker in stickers]
+        first_page_no = self.find_page_by_section_name('memories')
+        sets_by_pages = [
+            [1, 2],
+            [3, 4]
+        ]
+        include_sets = sets_by_pages[first_page_no - self.page_no]
+        sticker_keys = [self.yb.stickers[sticker]['key'] for sticker in stickers if self.yb.stickers[sticker]['set'] in include_sets]
         png = self.yb.render.render_stickers('memories_page', sticker_keys)
         file = discord.File(png, 'yb.png')
         cache_msg = await self.bot.get_channel(self.bot.config['interop_cn']).send(f'Cache for {str(self.member)}', file=file)
@@ -729,7 +696,7 @@ Sets: **{completed}** / **{total_sets}** (**{(completed / total_sets) * 100:.1f}
     def make_individual_sticker_embed(self, no):
 
         sticker = self.yb.stickers[no]
-        set_name = ['Base Set', 'VVORMDRAMA Set'][sticker['set'] - 1]
+        set_name = SET_NAMES[sticker['set'] - 1]
         # {sticker['emoji']}
         description = f'''_{sticker['name']}_
 [No. {no} / {set_name}]
@@ -937,9 +904,17 @@ positions = {
     'reed': [1865, 1123],
     'rosa': [1937, 636],
     'stella': [1911, 123],
+
     'fang_horns': [324, 1068],
     'flaming_guitar': [534, 1321],
     'vvormdrama': [642, 1083],
+
+    'hw_fang': [323, 226],
+    'hw_trish': [376, 1268],
+    'hw_naomi': [814, 1420],
+    'hw_naser': [382, 788],
+    'hw_reed': [795, 413],
+    'hw_rosa': [838, 921],
 }
 
 class Render:
