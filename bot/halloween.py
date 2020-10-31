@@ -21,6 +21,7 @@ class Halloween(commands.Cog):
         self.bot = bot
         self.active_encounters = {}
         self.messages_to_encounters = {}
+        self.tt_claimed = []
 
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
@@ -77,8 +78,22 @@ class Halloween(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message):
-        if message.author.bot:
+        if message.author.bot or not message.channel:
             return
+
+        if message.channel.id == 771481451337744384:
+            text = message.content.lower()
+
+            if 'trick' in text or 'treat' in text:
+                if message.author.id in self.tt_claimed:
+                    await message.channel.send(f"<@{message.author.id}> you've already claimed your treat! Come back in a little while to get another.")
+                    return
+
+                self.tt_claimed.append(message.author.id)
+                await self.bot.get_channel(self.bot.config['interop_cn']).send(f".give {message.author.id} hw_items {message.channel.id} Trick-or-treat!")
+                await message.channel.send(f"Happy Halloween from KO_OP, <@{message.author.id}>!")
+                return
+
 
         if message.channel.id not in self.active_encounters:
             return
@@ -125,6 +140,11 @@ class Halloween(commands.Cog):
 
             encounter['current'] += 1
             return
+
+    @checks.is_mod()
+    @commands.command()
+    async def reset_tt(self, ctx):
+        self.tt_claimed = []
 
     @checks.is_mod()
     @commands.command()

@@ -43,7 +43,8 @@ IMG_YB_FRONT = 'https://i.imgur.com/YoP3j3r.png' #'https://i.imgur.com/NTG5s8n.p
 SET_NAMES = [
     'The Gang\'s All Here',
     'VVORM DRAMA',
-    'Halloween',
+    'Halloween Cast',
+    'Halloween Collectibles',
 ]
 
 user_db = SqliteDatabase('yb_users.db')
@@ -198,7 +199,7 @@ class Yearbook(commands.Cog):
             await ctx.send('Oh! Apologies, I\'m organizing a couple of things! Yearbooks will be back soon.')
             return
 
-        set_keys = ['base', 'vvormdrama', 'hw']
+        set_keys = ['base', 'vvormdrama', 'hw_cast', 'hw_items']
         sticker_keys = list(self.nos.keys())
 
         set_text = ' '.join(f'`{key}`' for key in set_keys)
@@ -915,6 +916,14 @@ positions = {
     'hw_naser': [382, 788],
     'hw_reed': [795, 413],
     'hw_rosa': [838, 921],
+
+    'autumn_blessing': [1870, 70],
+    'witchy_tea': [1436, 288],
+    'witch_hat': [1842, 535],
+    'witch_cauldron': [1361, 720],
+    'dinolantern': [1882, 1029],
+    'ghost': [1485, 1247],
+
 }
 
 class Render:
