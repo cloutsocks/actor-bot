@@ -78,13 +78,15 @@ class Halloween(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message):
-        if message.author.bot or not message.channel:
+        if message.author.bot or message.channel is None:
             return
 
         if message.channel.id == 771481451337744384:
+            print('trick channel')
             text = message.content.lower()
 
             if 'trick' in text or 'treat' in text:
+                print('try to claim')
                 if message.author.id in self.tt_claimed:
                     await message.channel.send(f"<@{message.author.id}> you've already claimed your treat! Come back in a little while to get another.")
                     return
@@ -145,6 +147,7 @@ class Halloween(commands.Cog):
     @commands.command()
     async def reset_tt(self, ctx):
         self.tt_claimed = []
+        await ctx.send('reset')
 
     @checks.is_mod()
     @commands.command()
