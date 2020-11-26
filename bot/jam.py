@@ -189,7 +189,7 @@ class Jam(commands.Cog):
                     new_song.ticks = n
                     continue
 
-                if 60 <= n <= 140:
+                if 60 <= n <= 1000: #140:
                     updates.append('🕓')
                     new_song.bpm = n
                     continue
