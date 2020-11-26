@@ -12,6 +12,8 @@ peewee = "*"
 pytz = "*"
 pillow = "*"
 fuzzywuzzy = "*"
+miniaudio = "*"
+ffmpeg-python = "*"
 
 [requires]
 python_version = "3.8"
