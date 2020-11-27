@@ -26,6 +26,8 @@ KICK = 'k'
 SNARE = 's'
 CLAP = 'x'
 
+NOTE_LIMIT = 32
+
 non_melody = re.compile(fr'[^a-g\s{{}}\[\](){C3}{REST_NOTE}]', re.IGNORECASE)
 non_drums = re.compile(fr'[^\s{{}}\[\](){KICK}{SNARE}{CLAP}{REST_NOTE}]', re.IGNORECASE)
 # non_kick = re.compile(fr'[^{KICK}\s]', re.IGNORECASE)
@@ -61,7 +63,7 @@ def parse_melody(text):
             else:
                 melody.append(c)
 
-    return melody[:16]
+    return melody[:NOTE_LIMIT]
 
 def parse_drums(text):
     if re.search(non_drums, text):
@@ -92,7 +94,7 @@ def parse_drums(text):
             else:
                 drums.append(c)
 
-    return drums[:16]
+    return drums[:NOTE_LIMIT]
 
 # def parse_drums(text, char):
 #     drums = []
@@ -141,6 +143,52 @@ def make_vid(song, uid, play, render):
     #         .run(overwrite_output=True)
     # )
 
+def parse_all(text, song):
+    lines = text.split('\n')
+    updates = []
+
+    new_song = copy.copy(song)
+
+    for line in lines:
+        if not line.strip():
+            continue
+            
+        try:
+            n = int(line)
+            if 1 <= n <= 8:
+                updates.append('🎼')
+                new_song.ticks = n
+                continue
+
+            if 60 <= n <= 1000:  # 140:
+                updates.append('🕓')
+                new_song.bpm = n
+                continue
+
+        except ValueError:
+            pass
+
+        if not re.search(non_melody, line):
+            melody = parse_melody(line)
+            if melody:
+                updates.append('🎸')
+                new_song.melody = melody
+                continue
+
+        if not re.search(non_drums, line):
+            drums = parse_drums(line)
+            if drums:
+                updates.append('🥁')
+                new_song.drums = drums
+                continue
+
+            return None
+
+        # if we get here, it's invalid
+        return None
+
+    return new_song, updates
+
 class Jam(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -150,7 +198,7 @@ class Jam(commands.Cog):
         self.play.load_samples()
 
     @commands.command()
-    async def play(self, ctx, *, arg=''):
+    async def playy(self, ctx, *, arg=''):
 
         melody = parse_melody(arg)
         if not melody:
@@ -162,7 +210,7 @@ class Jam(commands.Cog):
         await ctx.trigger_typing()
 
         make_vid(song, ctx.author.id, self.play, self.render)
-        await ctx.send(file=discord.File(f'jam/tmp/rendered_song_{ctx.author.id}.mp4'))
+        await ctx.send(file=discord.File(f'jam/tmp/rendered_song_{ctx.author.id}.mp4', filename=f'{ctx.author.name}.mp4'))
 
     @commands.Cog.listener()
     async def on_message(self, message):
@@ -177,45 +225,11 @@ class Jam(commands.Cog):
             return
 
         # parse
-        lines = message.content.split('\n')
-        updates = []
-        new_song = copy.copy(session.song)
-
-        for line in lines:
-            try:
-                n = int(line)
-                if 1 <= n <= 8:
-                    updates.append('🎼')
-                    new_song.ticks = n
-                    continue
-
-                if 60 <= n <= 1000: #140:
-                    updates.append('🕓')
-                    new_song.bpm = n
-                    continue
-
-            except ValueError:
-                pass
-
-            if not re.search(non_melody, line):
-                melody = parse_melody(line)
-                if melody:
-                    updates.append('🎸')
-                    new_song.melody = melody
-                    continue
-
-            if not re.search(non_drums, line):
-                drums = parse_drums(line)
-                if drums:
-                    updates.append('🥁')
-                    new_song.drums = drums
-                    continue
-
-                return
-
-            # if we get here, it's invalid
+        result = parse_all(message.content, session.song)
+        if not result:
             return
 
+        new_song, updates = result
         if not updates:
             return
 
@@ -236,10 +250,24 @@ class Jam(commands.Cog):
         #             await session.try_to_update()
         #             return
 
-    @commands.command()
-    async def jam(self, ctx):
+    @commands.command(aliases=['jams', 'play'])
+    async def jam(self, ctx, *, arg=''):
         session = JamSession(self.bot, ctx.author, ctx.channel)
         self.sessions[ctx.author.id] = session
+
+        if arg:
+            result = parse_all(arg, session.song)
+            if result:
+
+                new_song, updates = result
+                if updates:
+                    for reaction in updates:
+                        await ctx.message.add_reaction(reaction)
+
+                    session.song = new_song
+                    await session.try_to_update()
+                    return
+
         await session.send_initial()
 
     @commands.command(aliases=['how2jam'])
@@ -377,7 +405,7 @@ bonus points if u can recreate constellations'''
 
         await self.channel.trigger_typing()
         make_vid(self.song, self.member.id, self.bot.jam.play, self.bot.jam.render)
-        sent = await self.channel.send(embed=self.make_song_embed(), file=discord.File(f'jam/tmp/rendered_song_{self.member.id}.mp4'))
+        sent = await self.channel.send(embed=self.make_song_embed(), file=discord.File(f'jam/tmp/rendered_song_{self.member.id}.mp4', filename=f'{self.member.name}.mp4'))
 
         self.last_jump = sent.jump_url
 
@@ -448,8 +476,8 @@ class Song:
     def __init__(self):
         self.bpm = 100
         self.ticks = 2
-        self.melody = None
-        self.drums = None
+        self.melody = []
+        self.drums = []
         # self.drums = {
         #     KICK: None,
         #     SNARE: None,
@@ -512,41 +540,47 @@ class Play:
         mixed = Sample().make_32bit()
         time_per_index = 60.0 / song.bpm / song.ticks
 
-        # todo allow drums to go past melody
+        notes = max(len(song.melody), len(song.drums))
 
-        for i, chord in enumerate(song.melody):
+        for i in range(notes):
+
             timestamp = time_per_index * i
 
-            if chord != REST_NOTE:
-                for note in chord[:5]:
-                    sample = self.samples[f'lead_{note}']
-                    if len(chord) > 1: # 2
-                        # volume = 1/(len(chord))
-                        # volume = (1 / len(chord)) * 1.75
-                        # volume = 1 - math.log10(len(chord) - 1)
-                        # if len(chord) == 2:
-                        #     volume = 0.7
-                        # volume = 0.5
-                        # print('notes/volume', len(chord), volume)
+            try:
+                chord = song.melody[i]
+            except (IndexError, TypeError) as e:
+                pass
+            else:
+                if chord != REST_NOTE:
+                    for note in chord[:5]:
+                        sample = self.samples[f'lead_{note}']
+                        if len(chord) > 1: # 2
+                            # volume = 1/(len(chord))
+                            # volume = (1 / len(chord)) * 1.75
+                            # volume = 1 - math.log10(len(chord) - 1)
+                            # if len(chord) == 2:
+                            #     volume = 0.7
+                            # volume = 0.5
+                            # print('notes/volume', len(chord), volume)
 
-                        volume = [1, 0.9, 0.65, 0.6, 0.5][len(chord)-1]
+                            volume = [1, 0.9, 0.65, 0.6, 0.5][len(chord)-1]
 
-                        mixed.mix_at(timestamp, sample.at_volume(volume))
+                            mixed.mix_at(timestamp, sample.at_volume(volume))
 
-                        # .mix_at(timestamp, sample.at_volume(1/len(chord)-1))
-                    # elif len(chord) == 2:
-                    #     mixed.mix_at(timestamp, sample.at_volume(0.75))
-                    else:
-                        mixed.mix_at(timestamp, sample)
+                            # .mix_at(timestamp, sample.at_volume(1/len(chord)-1))
+                        # elif len(chord) == 2:
+                        #     mixed.mix_at(timestamp, sample.at_volume(0.75))
+                        else:
+                            mixed.mix_at(timestamp, sample)
 
             try:
                 beat = song.drums[i]
             except (IndexError, TypeError) as e:
-                continue
-
-            if beat != REST_NOTE:
-                for instrument in beat[:5]:
-                    mixed.mix_at(timestamp, self.samples[instrument])
+                pass
+            else:
+                if beat != REST_NOTE:
+                    for instrument in beat[:5]:
+                        mixed.mix_at(timestamp, self.samples[instrument])
 
             # for instrument, pattern in song.drums.items():
             #     try:
@@ -577,19 +611,23 @@ class Render:
     def render(self, song, uid=1):
 
         melody = song.melody
+        n = len(melody)
+        if n > 16:
+            xn = 16
+            oy1 = 185 #175
+            oy2 = 420 #415
+        else:
+            xn = n
+            oy1 = oy2 = 270
 
-        if len(melody) == 16:
+        if xn == 16:
             ox = 30
-            oy = 270
             spacing = 49
-
-        elif len(melody) > 8:
+        elif xn > 8:
             ox = 40
-            oy = 270
             spacing = 52
         else:
             ox = 80
-            oy = 270
             spacing = 80
 
         canvas = self.canvas.copy()
@@ -600,10 +638,9 @@ class Render:
             if chord == REST_NOTE:
                 continue
 
-            # oy = oy if i < 8 else oy2
-            oy = oy
+            oy = oy1 if i < 16 else oy2
             # x = ox + (i % 8) * spacing
-            x = ox + i * spacing
+            x = ox + (i%16) * spacing
 
             # for note in reversed(chord) if len(chord) > 1 else chord:
             if len(chord) > 1:
