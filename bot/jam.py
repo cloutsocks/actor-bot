@@ -1,6 +1,7 @@
 import asyncio
 import copy
 import math
+import random
 
 import discord
 from discord.ext import commands
@@ -28,11 +29,12 @@ CLAP = 'x'
 
 NOTE_LIMIT = 32
 
-non_melody = re.compile(fr'[^a-g\s{{}}\[\](){C3}{REST_NOTE}]', re.IGNORECASE)
+non_melody = re.compile(fr'[^#a-g\s{{}}\[\](){C3}{REST_NOTE}]', re.IGNORECASE)
 non_drums = re.compile(fr'[^\s{{}}\[\](){KICK}{SNARE}{CLAP}{REST_NOTE}]', re.IGNORECASE)
 # non_kick = re.compile(fr'[^{KICK}\s]', re.IGNORECASE)
 # non_snare = re.compile(fr'[^{SNARE}\s]', re.IGNORECASE)
 # non_clap = re.compile(fr'[^{CLAP}\s]', re.IGNORECASE)
+
 
 def parse_melody(text):
     if re.search(non_melody, text):
@@ -41,11 +43,11 @@ def parse_melody(text):
     melody = []
     current_chord = None
 
-    for c in text:
+    for i, c in enumerate(text):
         if c in '[{(':
             if current_chord is not None:
                 return False
-            current_chord = ''
+            current_chord = []
 
         elif c in ']})':
             if not current_chord:
@@ -58,12 +60,70 @@ def parse_melody(text):
             melody.append(REST_NOTE)
 
         elif c in scale:
-            if current_chord is not None and c not in current_chord:
-                current_chord += c
+            note = c
+            try:
+                if text[i+1] == '#' and note != C3:
+                    if note == 'b':
+                        note = 'C'
+                    elif note == 'B':
+                        note = C3
+                    elif note == 'e':
+                        note = 'f'
+                    elif note == 'E':
+                        note = 'F'
+                    else:
+                        note += '#'
+
+            except IndexError:
+                pass
+
+            if current_chord is not None and note not in current_chord:
+                current_chord.append(note)
             else:
-                melody.append(c)
+                melody.append(note)
 
     return melody[:NOTE_LIMIT]
+
+
+# def parse_melody(text):
+#     if re.search(non_melody, text):
+#         return False
+#
+#     melody = []
+#     sharps = []
+#     current_chord = None
+#
+#     for i, c in enumerate(text):
+#         if c == '#':
+#             try:
+#                 sharps[-1] = True
+#             except IndexError:
+#                 return False
+#
+#         if c in '[{(':
+#             if current_chord is not None:
+#                 return False
+#             current_chord = ''
+#
+#         elif c in ']})':
+#             if not current_chord:
+#                 return False
+#
+#             melody.append(current_chord[:5])
+#             current_chord = None
+#
+#         elif c == REST_NOTE:
+#             melody.append(REST_NOTE)
+#             sharps.append(False)
+#
+#         elif c in scale:
+#             if current_chord is not None and c not in current_chord:
+#                 current_chord += c
+#             else:
+#                 melody.append(c)
+#             sharps.append(False)
+#
+#     return melody[:NOTE_LIMIT], sharps[:NOTE_LIMIT]
 
 def parse_drums(text):
     if re.search(non_drums, text):
@@ -152,7 +212,7 @@ def parse_all(text, song):
     for line in lines:
         if not line.strip():
             continue
-            
+
         try:
             n = int(line)
             if 1 <= n <= 8:
@@ -288,10 +348,20 @@ def melody_as_text(melody, ticks):
     for i in range(0, len(melody), ticks):
         chunk = ''
         for j in range(i, min(len(melody), i+ticks)):
-            if len(melody[j]) == 1:
-                chunk += melody[j]
+            # if len(melody[j]) == 1:
+            #     chunk += melody[j]
+            # else:
+            #     chunk += f"[{melody[j]}]"
+            if isinstance(melody[j], list):
+                if len(melody[j]) == 1:
+                    chunk += melody[j][0]
+                else:
+                    chunk += f"[{''.join(melody[j])}]"
             else:
-                chunk += f"[{melody[j]}]"
+                chunk += melody[j]
+
+            chunk += ' '
+
 
         chunks.append(f'`{chunk}`')
 
@@ -316,6 +386,7 @@ def drums_as_text(drums, ticks):
                 chunk += drums[j]
             else:
                 chunk += f"[{drums[j]}]"
+            chunk += ' '
 
         chunks.append(f'`{chunk}`')
 
@@ -478,11 +549,6 @@ class Song:
         self.ticks = 2
         self.melody = []
         self.drums = []
-        # self.drums = {
-        #     KICK: None,
-        #     SNARE: None,
-        #     CLAP: None,
-        # }
 
     def is_playable(self):
         return self.melody or self.drums
@@ -493,9 +559,6 @@ class Song:
                    self.ticks == other.ticks and \
                    self.melody == other.melody and \
                    self.drums == other.drums
-                   # self.drums[KICK] == other.drums[KICK] and \
-                   # self.drums[SNARE] == other.drums[SNARE] and \
-                   # self.drums[CLAP] == other.drums[CLAP]
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -521,6 +584,10 @@ class Play:
 
             # print(path)
             self.samples[f'lead_{note}'] = Sample(wave_file=path).normalize().make_32bit(scale_amplitude=True).lock()
+
+            if note not in 'beBE'+C3:
+                path = path[:-5] + '#' + path[-5:]
+                self.samples[f'lead_{note}#'] = Sample(wave_file=path).normalize().make_32bit(scale_amplitude=True).lock()
 
     def record_to_file(self, song, uid):
 
@@ -552,7 +619,11 @@ class Play:
                 pass
             else:
                 if chord != REST_NOTE:
-                    for note in chord[:5]:
+                    if isinstance(chord, list):
+                        group = chord[:5]
+                    else:
+                        group = [chord]
+                    for note in group:
                         sample = self.samples[f'lead_{note}']
                         if len(chord) > 1: # 2
                             # volume = 1/(len(chord))
@@ -607,6 +678,7 @@ class Render:
     def __init__(self):
         self.canvas = Image.open('jam/bass.png').convert('RGBA')
         self.font = ImageFont.truetype('jam/Mark-Black.ttf', 77) #100 #75
+        self.subfont = ImageFont.truetype('jam/Mark-Black.ttf', 32)
 
     def render(self, song, uid=1):
 
@@ -640,14 +712,16 @@ class Render:
 
             oy = oy1 if i < 16 else oy2
             # x = ox + (i % 8) * spacing
-            x = ox + (i%16) * spacing
+            x = ox + (i % 16) * spacing
 
             # for note in reversed(chord) if len(chord) > 1 else chord:
-            if len(chord) > 1:
-                chord = sorted(chord, key=lambda note: scale.index(note))
 
-            for note in chord:
-                n = scale.index(note)
+            if isinstance(chord, list):
+                group = sorted(chord[:5], key=lambda note: scale.index(note[0]))
+            else:
+                group = [chord]
+            for note in group:
+                n = scale.index(note[0])
                 # y = oy - n * 8 #6 #(18 if len(chord) > 1 else 6)
                 # y = oy - n * (12 if len(chord) > 1 else 8)
                 y = oy - n * 8
@@ -666,11 +740,17 @@ class Render:
                 # F743D6
                 # F73F84
 
-                shown_as = note
-                if note == C3:
+                shown_as = note[0]
+                if shown_as == C3:
                     shown_as = 'C'
 
                 draw.text((x, y), shown_as, font=self.font, fill=color, anchor='mm')
+                # draw.text((x, y), shown_as, font=self.font, fill=color, stroke_width=3, stroke_fill='#000', anchor='mm')
+                #draw.text((x + 12 + 6 , y + 35), '#', font=self.subfont, fill='#fff', stroke_width=3, stroke_fill='#000', anchor='ms')
+
+                # if song.sharps[i]:
+                if '#' in note:
+                    draw.text((x + 12 + 4 , y + 35 + 4), '#', font=self.subfont, fill='#fff', stroke_width=3, stroke_fill='#000', anchor='ms')
 
         canvas.save(f'jam/tmp/render_{uid}.png')
 
@@ -705,7 +785,7 @@ eeE-eD-eC-ea-eab
 but what does all that mean??
 
 **melody**: the melody is the sequence of notes in your song! you can type up to two octaves
-so that's `cdefgba` for the lower octave, `CDEFGBGA` for the higher one, and `+` for the high c (for you sopranos out there)
+so that's `cdefgba` for the lower octave, `CDEFGBGA` for the higher one, and `+` for a third c. add `#` to make it a sharp!
 
 **rests**: a rest is ~simply~ the absence of sound. :shushing_face: __type `-` to add rests to your song.__ for example, if you want two rests after your low c note, you can type `c--`. just a heads up, this works for your melody _and_ your drums!
 
