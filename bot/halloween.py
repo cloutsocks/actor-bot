@@ -82,11 +82,9 @@ class Halloween(commands.Cog):
             return
 
         if message.channel.id == 771481451337744384:
-            print('trick channel')
             text = message.content.lower()
 
             if 'trick' in text or 'treat' in text:
-                print('try to claim')
                 if message.author.id in self.tt_claimed:
                     await message.channel.send(f"<@{message.author.id}> you've already claimed your treat! Come back in a little while to get another.")
                     return

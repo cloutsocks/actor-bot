@@ -45,6 +45,7 @@ SET_NAMES = [
     'VVORM DRAMA',
     'Halloween Cast',
     'Halloween Collectibles',
+    'Tarot',
 ]
 
 user_db = SqliteDatabase('yb_users.db')
@@ -199,7 +200,7 @@ class Yearbook(commands.Cog):
             await ctx.send('Oh! Apologies, I\'m organizing a couple of things! Yearbooks will be back soon.')
             return
 
-        set_keys = ['base', 'vvormdrama', 'hw_cast', 'hw_items']
+        set_keys = ['base', 'vvormdrama', 'hw_cast', 'hw_items', 'tarot']
         sticker_keys = list(self.nos.keys())
 
         set_text = ' '.join(f'`{key}`' for key in set_keys)
@@ -460,7 +461,8 @@ class YearbookSession(object):
         toc = [
             ('toc', None),
             ('memories', 0),
-            ('memories', 1)
+            ('memories', 1),
+            ('memories', 2)
         ]
 
         if self.sticker_row.stickers is not None:
@@ -671,11 +673,17 @@ Sets: **{completed}** / **{total_sets}** (**{(completed / total_sets) * 100:.1f}
         first_page_no = self.find_page_by_section_name('memories')
         sets_by_pages = [
             [1, 2],
-            [3, 4]
+            [3, 4],
+            [5]
         ]
-        include_sets = sets_by_pages[first_page_no - self.page_no]
+        include_sets = sets_by_pages[self.page_no - first_page_no]
         sticker_keys = [self.yb.stickers[sticker]['key'] for sticker in stickers if self.yb.stickers[sticker]['set'] in include_sets]
-        png = self.yb.render.render_stickers('memories_page', sticker_keys)
+
+        page_canvas = 'memories_page'
+        if 5 in include_sets:
+            page_canvas = 'tarot_page'
+
+        png = self.yb.render.render_stickers(page_canvas, sticker_keys)
         file = discord.File(png, 'yb.png')
         cache_msg = await self.bot.get_channel(self.bot.config['interop_cn']).send(f'Cache for {str(self.member)}', file=file)
         self.yb.img_cache['stickers'][self.member.id][self.page_no] = (cache_msg.attachments[0].url, stickers)
@@ -924,6 +932,14 @@ positions = {
     'dinolantern': [1882, 1029],
     'ghost': [1485, 1247],
 
+
+    'hourglass': [400, 420],
+    'crystal_ball': [905, 914],
+    'gemstone': [1138, 336],
+    'tarotdeck': [1767, 600],
+    'spellbook': [1413, 1236],
+    'feather': [419, 1243],
+
 }
 
 class Render:
@@ -931,6 +947,8 @@ class Render:
         self.images = {}
 
         self.images['memories_page'] = Image.open(f'yearbook/tiny/memories_page.png').convert('RGBA')
+        self.images['tarot_page'] = Image.open(f'yearbook/tiny/tarot_page.png').convert('RGBA')
+
         path = 'yearbook/tiny/common'
         for fn in os.listdir(path):
             self.images[fn[:-4] + '_common'] = Image.open(f'{path}/{fn}').convert('RGBA')

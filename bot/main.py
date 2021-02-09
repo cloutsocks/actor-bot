@@ -54,6 +54,11 @@ class ActorBot(commands.Bot):
 
         if self.config['actor'] == 'tester':
             self.bound_extensions.append('jam')
+            self.bound_extensions.append('stella')
+            self.bound_extensions.append('yearbook')
+            self.bound_extensions.append('scramble')
+
+
 
         if self.config['actor'] == 'trish':
             self.bound_extensions.append('jam')
@@ -104,7 +109,7 @@ async def no_dms(ctx):
 
 @bot.event
 async def on_ready():
-    print('Logged in as {0.user}'.format(bot))
+    print(f'Logged in as {bot.user}')
     status = bot.config['playing']
     playing = discord.Game(name=status)
     bot.guild = bot.get_guild(bot.config['guild'])

@@ -1,3 +1,4 @@
+import json
 
 import discord
 import checks
@@ -7,7 +8,7 @@ import time
 import pytz
 
 from discord.ext import commands
-from common import RAINBOW_PALETTE, FIELD_BREAK
+from common import RAINBOW_PALETTE, FIELD_BREAK, DBL_BREAK
 
 from peewee import *
 from datetime import datetime
@@ -356,6 +357,110 @@ This card is letting us know that we may need to do some personal work—whether
      'https://i.imgur.com/t3FQeaO.png', 0x3CC5FF],
 ]
 
+love_text = [
+"""You know that twirly butterflies feeling when you meet someone and it's like... instant crush?? The best!! You're feeling like you wanna just jump right in with an unguarded heart, and you know what?! Go for it!! You're not really thinking of the potential dings your feelings could take... but that's kind of beautiful. Being unguarded is a gift. Love and be free!!""",
+
+"""Ooooh, I see what's going on here. You feel a crush coming on like a migraine and you're like "Woah brain, I know where this is heading, and I'm shutting you off right now!"" I get it! Feelings are SCARY. Maybe just take a stomp back from your romantic imagination running wild and ask yourself if there's anything stopping you from moving forward with expressing yourself or making a move. Sometimes we just need a little mental to-do list of what could go wrong to realize... the worst case is not like, the end of the world.
+
+An alternate reading of this card is that you've gone FULL TILT into the romantic daydream and honey you've lost the plot! If you find romantic feelings taking over your subconscious in a way that's starting to distract you from other things, maybe try stopping the thought out loud... roar (or whisper roar): that's enough unrequited love for one evening thank you very much!! See how that feels, hehe.""",
+
+"""You and the Dino of Your Affection (DoYA) have planted the seeds of romance! Maybe you had a flirty convo, or you've simply felt some mutual sparks... regardless, it feels like something is happening. Make sure you're touching base with yourself to see if you're pursuing this particular DoYa for the right reasons... are you feeling a genuine connection? Or are you lonely/craving attention/trying to fit in?""",
+
+"""Maybe you've started something new with someone and it's still a bit fresh, like a newly hatched dino egg... tender and vulnerable! Take some time with your uncertainty, think about what your intentions are, and don't forget to take deep breaths! Sounds silly, but you'd be amazed how often we forget to do it when we're stressed!""",
+
+"""Ooooh, you're having an INTUITION, possibly about the Dino of Your Affection (DoYA, hehe) but maybe you're not ready yet to take a peek at that feeling. I know it's hard to trust yourself, especially if you've been hurt before, but do your best! If you're having trouble placing the thoughts, try journaling, or meditation, or even talking it out with a pal. Basically, try to believe in your abilities to process your feelings about someone. You're more self-reflective than you think!""",
+
+"""Hmm... trying to self-reflect on your feelings for someone but not having much luck, eh? I've been there. It can be hard to trust yourself to know what you need. You never know what you might find when you peel too many layers of the onion. You might end up crying! But hey, feeling that strongly is good; more often than not, it's really healing to tune in to your emotions.""",
+
+"""You know the routine: the Tarot's all up on the binary here with the Empress and the Emperor, but we're shooing that aside and vibin' on the energies instead.
+
+You're feeling the smorgasbord of abundance the world contains. Make the one you love (whether that's romantic, platonic, or otherworldly, hehe!) a delicious meal! Do each other's nails! Tell each other what your favourite things about each other are! I know, I know, it sounds so cheesy, but it's sooooo fun, I do it with my friends all the time and it's so cute.""",
+
+"""Sigh.... all work and no play makes Rex a dull dino! Maybe you've been busy with group dynamics or giving too much of yourself to that special friend, but not leaving enough energy for yourself and your own self-care. It might be time to take a step back and do something just for you. First things first: bubble bath!!""",
+
+"""Just like with the Empress, we acknowledge the Emperor/Empress gender binary and we move past it! Ok! So with the Emperor here, you're in a particularly stable place, emotionally. You're cool, calm, and rather collected, if I do say so myself. Right now would be a really good time to address any interpersonal issues you've been meaning to bring up with anybody since you're so tapped into that inner peace! Go for it, babe!""",
+
+"""Hmmm.... something feels a little off with how you're interacting with someone, but you can't really pinpoint what it is. It feels like it's got something to do with your own sense of authority—you may be on the brink of chomping someone's head off or you may be feeling like you're getting stomped on... either way, the power balance is off!! Take some time to think about the ways power plays a role in y'alls relationship. Y'alls? Y'allses?""",
+
+"""Ok so like, I'm all about going down the path less taken, fewer footprints, all that jazz, but like, sometimes a cliche is a cliche because it's resonant and true. You can really look to wisdom from an established guide (whether that's a trusted pal or a self-help book, hehe) on whatever you've got going with your special dino.""",
+
+"""So the thing here is that you've probably been trying things with the Dino of Your Affection (DoYA, haha) a certain way, going by the book, tried and true, "just like in the movies," all that stuff. But like, it may be worth it to shake things up a little bit!! If you've been meaning to approach something in a new way but you've been scared because it feels, well, new, just know that we don't have to live the life that's presented to us as status quo. In fact, it doesn't seem like that even goes well for the adults in our lives!""",
+
+"""Look, it's a little on the nose, alright? Lovers card on a Lovers reading? You are letting yourself be vulnerable and open, and trusting with someone, and that's something to be celebrated. Enjoy the riches and bounty that come with this card—enjoy a delicious meal, make a fort and watch a romantic movie—but if you're feeling the love, why not really bask in it?? It's so rare we let ourselves enjoy those in-the-moment joys.""",
+
+"""You may be out of sync with the Dino of Your Affection, or having a hard time communicating with them. The littlest, tiniest disagreements may be turning into big roar-offs... most likely you're just temporarily on different pages, or just seeing things differently. You may feel like you're giving it your all and they're not doing the same (or vice versa)! Try to approach each other with care and empathy during this time.""",
+
+"""This card is all about ACTION!!! Not like, getting action (hee hee sorry sorry!!!) more like, taking charge, taking the reins: whether that's asking someone out on a date or sharing your feelings with someone or putting a plan in action for shared household chores, you're in a place where you can really take charge here and go for it!!""",
+
+"""Alright, hold up. You may not be 100% sure yet whether or not things are heading in the right direction with someone, but that's not necessarily a bad thing, I swear. It just means that you have to slow to a trot and reassess. I promise slowin' down the ole' brain-jumble won't kill you! In fact, it may give you some much-needed insight into your true feelings about someone.""",
+
+"""WOW, the aura you are giving off right now... so powerful!! You are feeling very calm about the Dino of Your Affection (or as I like to say... DoYA.... you think it needs some workshopping?); whatever you've got planned, you just know that they're not going to go anywhere anytime soon. What lovely confidence that must give you!""",
+
+"""You're a little out of touch, a bit woozy in your feelings, and maybe feeling uncertain? It may be making you feel self-conscious about your relationship with the Dino of Your Affection (DoYa, natch). But it's nothing that a little direct communication won't fix! I know, I know, easier said than done.""",
+
+"""Ooooh, you are in the Self Love Zone. Do not disturb, universe!! The Dino of Your Affection, in this case, may be...... you!!! So if that's the case, you better show yourself some love, because you deserve it. Oooh, maybe you could take yourself on a date! A nice meal, watch a movie, kiss your reflection in the mirror, hehe, wait, too weird. Don't tell anyone I said that!!""",
+
+"""Hmm, I'm sensing distraction. Maybe there's more than one dino vying for your attention? Or maybe you're preoccupied with your own thoughts and tasks? I'm not saying you have to focus on just one thing (or just one dino 😎🤭) but it may be worth re-centering and seeing how it feels to focus. Who makes you feel the happiest to be you? 
+
+Alternately, you may be feeling intentionally left out of things, or isolated. If that's the case, maybe pick up the phone and call a loved one you haven't talked to in a while. It'll probably do you both some good!""",
+
+"""Relationships are constantly evolving! One day you may be a lamprey vibing in a lake, the next day you may be like, "Hey you know what? I'm gonna jump onto land and start walkin' around!" The lamprey in this analogy is a, uh, relationship. All I'm saying is that it's important to try to go with the flow, baby, and recognize that relationships may shift and grow. (Hey, I rhymed!) You're a smart dino, you probably already know that, but sometimes it's nice to be reminded.""",
+
+"""You've fallen into your feelings again, and you can't get up!! You're pushing against something within a relationship, but if there's one thing I've learned the hard way as an emotional, nostalgic gal, it's that you can't stop changes that are already in motion. Sigh. C'est la vie!""",
+
+"""Maybe you've been having big conversations with a special dino about your history, and past heartbreaks are coming up... or maybe you're thinking more generally about how your interpersonal relationships have gone in the PAST and placing your behaviour on the scales (heh heh) to see how you've measured up. Be kind—but fair—with yourself, and with those you most care about.""",
+
+"""This card, in the context of a Love reading, is about owning mistakes, and owning interpersonal responsibility. You are being asked to think about the way your actions or inactions may be affecting the Dino of Your Affection, and whether you may not be fully listening to them. The nice thing is: I'm sure you can talk to them about it if you can both be vulnerable and honest with each other!""",
+
+"""Hmmm.... you may be focusing quite intensely on trying to make something work, or trying to resolve complicated conflicts. It may be worth taking a pause—whatever that may mean to you—to turn it around and get a fresh view of it. I swear, a different angle will help.""",
+
+"""You may be too busy to be spending as much time with the Dino of Your Affection as usual. That doesn't always feel good for either party, so maybe you could talk about it with them! Do they think you could use some more downtime together? Might be nice to veg out in front of a chill movie and eat some popcorn.""",
+
+"""Ooooh, some change might be on its way in regards to the Dino of Your Affection, but I promise, it probably won't be bad! Or at least not ALL bad! Something is coming for sure, though. I know you're ready to face it head-on!! Can't know until you face it!""",
+
+"""Look, we can't hold on to everything, and certainly not to our own detriment. You may be having trouble letting go of something... it might be the role a person had in your life, an unrequited crush, a painful friendship, or even the harm someone caused you (sometimes anger can fill a void for us!) But if it's clogging up your emotional arteries, it may be time to cut it off. Easier said than done, but I believe in you!""",
+
+"""Babe! You are so calm in your dynamic with the Dino of Your Affection right now! You feel like you could handle any conflict, have any discussion, and it would go peachy keen. You're rooted, you're not trying to change what can't be changed. You rule. Have I mentioned that you rule?""",
+
+"""Oh ya, you've been in your own world for a bit there.... maybe you're in a rut in an interpersonal relationship, or maybe you've been ignoring some signs that something needs to change... something's throwing the scales off. 
+
+Alternately, you and the Dino of Your Affection have been goin' ham on a life of excess, livin' life to the max and not looking at the receipts. Not to sound like a mom, but if that's the case, it may be worth it, in the long run, to pull back and try a taste of moderation.""",
+
+"""Mmm... you may be focusing a lot on the negative in an interpersonal dynamic right now, whether you're saying it out loud or just thinking it on repeat. That type of energy can be hard to deal with, and can really wear a dino's scales out. 😓 A rest may be needed. 
+
+Another reading of this card is about unleashing your wild side!! You may try going on an exciting date or trying something totally new with the Dino of Your Affection. It'll be SO fun!!! Tell me how it goes after, hehe.""",
+
+"""You're looking to build something with someone, and who could blame you?! Building is great! Also, by the way, have I mentioned you'd be great to build something with? Before you get ahead of yourself though, you may need to explore some things about yourself and what you're looking for, and then jump into something.""",
+
+"""OH GREAT, here comes the boomerang of life, bonking me on my headplate again.... a relationship you thought was really solid may suddenly be shifting under your feet, possibly from matters completely outside of your control. Nothin' you can do but hold on tight to your emotional core and HOPE FOR THE BEST.""",
+
+"""The reversed Tower, in a love reading, is about a personal preference evolution you may be experiencing, whether that's with the Dino of Your Affection or just with yourself. But hey, the love reading is about being in relation to others, so if you find yourself pushing back against this reading, that's ok too! Only you know what this means for you. Dig deep and see where your heart has been craving change.""",
+
+"""Maybe you've just been through a big conflict with someone and you're in the process of rebuilding. That's beautiful. Working together to make something new, from a potentially rough situation? That sounds pretty healing to me.""",
+
+"""You may have just faced something quite major together, but for whatever reason, you and the Dino of Your Affection can't quite get past it. That's fair, but you may need to let go in some form or another at some point. Touch base with yourself and see if you need anything to move forward""",
+
+"""Let me know if this rings true: when you're around the Dino of Your Affection, you may get the warm-and-fuzzies, but once they're gone, you're there with your thoughts and get wrapped up in negativity and solitude. Try to trust yourself (and them!), and pay attention to your subconscious. It may be telling you something about your relationships that you could do well to interpret! Much like you may be interpreting this Tarot reading... hehe, meta.""",
+
+"""Have you ever like, run through a whole discussion in your head, without the dino it's about even being present for it? Hooo, have I been there before. But, you know, you can't actually know how a conversation is going to go.... until you just, you know, have it.  Sounds silly but you'd be surprised how often we forget this.""",
+
+"""Heck ya, you are simply vibing with the Dino of Your Affection!!! Your inner joy right now is contagious, and you may find yourself drawing a lot of people, due to your confidence and inner/outer COOL ENERGY, BABE!!! Wear your sparkliest outfit, please.""",
+
+"""For whatever reason, you're feeling disappointed in the outcome of an interpersonal relationship. It may be a big situation, or it may just be that someone forgot how you like your fern salad, even though you've told them a million times. Either way, it's ok to feel sad about it. This will pass eventually, and maybe you'll talk about it with them or maybe you won't, but for now, it's ok to just sit in that disappointment.""",
+
+"""You can see a nice marker in the distance of your.... interpersonal marathon? You're feeling like you can see a lot of what you've gone through with someone, and what you've accomplished, and it's making you assess things. It's really nice to think about what someone brings to our lives. We should do it more often!""",
+
+"""It's hard when you're trying to think about what a relationship means to you and what you mean to them. You may have hurt each other in the past, or simply been on different pages. 
+
+You can't forgive yourself for past mistakes if you don't take accountability for them. You can't achieve your goals if you're constantly doubting yourself. Looking at your life and your choices—really digging in the mud of it—is the only way to come to a place of peace and growth.""",
+
+"""Hell ya, you are feeling proud and pleased in your relationship with someone: maybe something massive has happened, some marker of like, a big change in your lives together, or maybe you're just having a moment of looking at them like, "Damn, we're simply the best!" Doesn't have to be a huge moment to feel huge. Good for you! You deserve to be happy about the journey you've taken with someone.""",
+
+"""Ah... the vague melancholy of a plan falling through, right when you'd gotten excited! Maybe you had a big trip planned with the Dino of Your Affection and it got delayed, and now you feel stuck. It's ok! Try to brainstorm new solutions, and you'll be on your way in no time. Even if it's just metaphorically. 
+
+Alternately, you're looking for some closure on a relationship or a crush or something and it's not coming. You may be waiting for an apology from them or guidance from an external force... baby I'm here to tell you that closure is only going to come from you. You have the whole world ahead of you. I know you can figure this out."""
+]
+
 daily_reading = {
     'title': 'Daily Reading',
     'emoji': '<:stella:749318176508215367>',
@@ -370,9 +475,8 @@ daily_reading = {
     ]
 }
 
-
-
-
+LOVE_EMOJI = '💞'
+LOVE_THRESHOLD = 30
 
 readings = {
 
@@ -444,6 +548,44 @@ readings = {
         'emoji': '<:GVHrosascared:721410319129247847>',
         'text': '''Comprehensive 10 card reading to get a thorough feel of the issue''',
         'unrevealed': 'https://i.imgur.com/HmwJV9i.png', # 'https://i.imgur.com/uqZl0Bc.png',
+    },
+
+    # 'love': {
+    #     'title': 'Love',
+    #     'emoji': LOVE_EMOJI,
+    #     'text': '''3 card reading of your relationship dynamics''',
+    #     'unrevealed': 'https://i.imgur.com/R3ZlZeV.png',
+    #     'cards': [
+    #         {
+    #             'title': 'You',
+    #             'emoji': '🧑',
+    #             'text': "What is your role in this relationship? How do you perceive yourself, and how does that affect your partnership?"
+    #         },
+    #         {
+    #             'title': 'Dynamics',
+    #             'emoji': '💘',
+    #             'text': "How would you describe this relationship? What are the characteristics of it?"
+    #         },
+    #         {
+    #             'title': 'Partner',
+    #             'emoji': '🌹',
+    #             'text': "What is their role in the relationship? How do you perceive your partner? And how does that affect the partnership?"
+    #         },
+    #     ]
+    # },
+
+    'love': {
+        'title': 'Love',
+        'emoji': LOVE_EMOJI,
+        'text': '''Single card reading of your relationship dynamics''',
+        'unrevealed': 'https://i.imgur.com/nQqpDXC.png',
+        'cards': [
+            {
+                'title': 'Dynamics',
+                'emoji': '💘',
+                'text': "What are the vibes right now between you and the dino you're inquiring about?"
+            }
+        ]
     },
 }
 
@@ -517,6 +659,8 @@ class Tarot(BaseModel):
     best_streak = IntegerField(default=0)
     n = IntegerField(default=0)
     n_daily = IntegerField(default=0)
+    n_love = IntegerField(default=0)
+    flags = CharField(null=True)
 
 class Flags(BaseModel):
     discord_id = IntegerField(unique=True)
@@ -617,7 +761,8 @@ class TarotSession(object):
         self.card_reactions = None
         self.revealed = False
         self.tarot_row = None
-
+        self.flags = []
+        self.love_reading = False
         self.wfr_message = None
 
     def load_from_db(self):
@@ -631,6 +776,11 @@ class TarotSession(object):
 
             self.tarot_row.save()
 
+        if self.tarot_row.flags is None:
+            self.flags = []
+        else:
+            self.flags = json.loads(self.tarot_row.flags)
+
     async def handle_reaction(self, reaction, user):
         emoji = str(reaction.emoji)
         if self.format is None:
@@ -643,7 +793,10 @@ class TarotSession(object):
                     # TODO single card
                     pass
             elif emoji in reactions_format_map:
-                await self.update_prompt_to_readings(emoji)
+                if emoji == LOVE_EMOJI and 'unlock_love' not in self.flags:
+                    pass
+                else:
+                    await self.update_prompt_to_readings(emoji)
 
         else:
             if emoji in self.card_reactions:
@@ -676,6 +829,8 @@ class TarotSession(object):
         reactions += [daily_reading['emoji']]
         reactions += list(reactions_format_map.keys())
         for reaction in reactions:
+            if reaction == LOVE_EMOJI and 'unlock_love' not in self.flags:
+                continue
             await self.wfr_message.add_reaction(reaction.strip('<>'))
         self.bot.wfr[self.member.id] = self
 
@@ -687,6 +842,7 @@ class TarotSession(object):
         self.draw = None
         self.card_reactions = None
         self.revealed = False
+        self.love_reading = False
         await self.send_initial_prompt(None)
 
     def daily_claimed(self):
@@ -723,8 +879,16 @@ Current Streak: **{self.tarot_row.daily_streak}**
 Best Streak: **{self.tarot_row.best_streak}**
 
 '''
+        # self.tarot_row.
+        text = ''
+        for key, format in readings.items():
+            if key == 'love' and self.tarot_row.n < LOVE_THRESHOLD:
+                continue
+            text += f'''{format['emoji']} **{format['title']}**
+        _{format['text']}_
 
-        desc += f'''{formats_text}❓ if you need an explanation!
+        '''
+        desc += f'''{text}❓ if you need an explanation!
 '''
 
         e = discord.Embed(title='Stella\'s Tarot')
@@ -756,6 +920,7 @@ TMI though, sorry. Where was I? What I'm trying to say is that **the Tarot can b
 
     async def update_prompt_to_readings(self, emoji):
         daily = emoji == daily_reading['emoji']
+        self.love_reading = emoji == LOVE_EMOJI
         if daily:
             format = self.format = daily_reading
         else:
@@ -766,6 +931,10 @@ TMI though, sorry. Where was I? What I'm trying to say is that **the Tarot can b
         self.draw = [n * 2 + random.choice([0, 1]) for n in self.draw]
 
         self.tarot_row.n += 1
+        if self.love_reading:
+            self.tarot_row.n_love += 1
+        if daily:
+            self.tarot_row.n_daily += 1
         self.tarot_row.save()
 
         await self.wfr_message.clear_reactions()
@@ -780,13 +949,20 @@ TMI though, sorry. Where was I? What I'm trying to say is that **the Tarot can b
             else:
                 desc = f'''I've drawn a single card. Select it to reveal it.\n'''
 
+        if self.love_reading:
+            desc = f'''Ok. So like, just so you know? Yes this is a love reading, because my friends often have love on the brain, but this doesn't have to be about romantic love. It can be about platonic love! When I say Dino of Your Affection (DoYA), it can be about a crush, but you can also take it as a reading about a friend crush, or "Dino You Admire" (DYA, hehe I can't stop making acronyms), or even like, a dinolebrity you love from afar. I'm simply a LOVE CONDUIT for your LOVE FEELINGS. \*hugs!!\*
+
+{desc}'''
+
         e = discord.Embed(title=format['title'])
 
-        for card in format['cards']:
+        for i, card in enumerate(format['cards']):
             reactions += [card['emoji']]
             self.card_reactions += [card['emoji']]
             desc += f'''
 {card['emoji']} **{card['title']}**'''
+
+
             if 'text' in card:
                 desc += f'''\n{card['text']}\n'''
 
@@ -866,6 +1042,31 @@ TMI though, sorry. Where was I? What I'm trying to say is that **the Tarot can b
             self.revealed = True
             await self.wfr_message.add_reaction(ICON_FAVORITE)
 
+        if self.love_reading and 'first_love' not in self.flags:
+            await self.bot.get_channel(self.bot.config['interop_cn']).send(f".give {self.member.id} tarot {self.wfr_message.channel.id} First love 💞")
+            self.flags.append('first_love')
+            self.tarot_row.flags = json.dumps(self.flags)
+            self.tarot_row.save()
+
+        if self.tarot_row.n >= LOVE_THRESHOLD and 'unlock_love' not in self.flags:
+            await self.wfr_message.channel.send(f'''<@{self.member.id}> You've unlocked **love readings**!\n_Do at least **{LOVE_THRESHOLD}** `.tarot` readings._''')
+            self.flags.append('unlock_love')
+            self.tarot_row.flags = json.dumps(self.flags)
+            self.tarot_row.save()
+
+        if self.tarot_row.daily_streak >= 14 and 'streak_14' not in self.flags:
+            await self.bot.get_channel(self.bot.config['interop_cn']).send(f".give {self.member.id} tarot {self.wfr_message.channel.id} _Get a daily `.tarot` streak of at least **14**_")
+            self.flags.append('streak_14')
+            self.tarot_row.flags = json.dumps(self.flags)
+            self.tarot_row.save()
+
+        if self.tarot_row.n_daily >= 30 and 'daily_30' not in self.flags:
+            await self.bot.get_channel(self.bot.config['interop_cn']).send(f".give {self.member.id} tarot {self.wfr_message.channel.id} _Do at least **30** total daily `.tarot` readings._")
+            self.flags.append('daily_30')
+            self.tarot_row.flags = json.dumps(self.flags)
+            self.tarot_row.save()
+
+
     '''
     face up card embed
     '''
@@ -876,6 +1077,11 @@ TMI though, sorry. Where was I? What I'm trying to say is that **the Tarot can b
 
         card = cards[self.draw[n]]
         no, name, orientation, tags, explanation, image, color = card
+
+        if self.love_reading:
+            explanation = love_text[self.draw[n]]
+
+
         tags = '\n'.join([f'`{tag}`' for tag in tags])
         orientation = 'Upright' if orientation == 'U' else 'Reversed'
 
