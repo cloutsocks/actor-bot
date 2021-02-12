@@ -793,9 +793,9 @@ class TarotSession(object):
                     # TODO single card
                     pass
             elif emoji in reactions_format_map:
-                if emoji == LOVE_EMOJI and 'unlock_love' not in self.flags:
-                    pass
-                else:
+                # if emoji == LOVE_EMOJI and 'unlock_love' not in self.flags:
+                #     pass
+                # else:
                     await self.update_prompt_to_readings(emoji)
 
         else:
@@ -829,8 +829,8 @@ class TarotSession(object):
         reactions += [daily_reading['emoji']]
         reactions += list(reactions_format_map.keys())
         for reaction in reactions:
-            if reaction == LOVE_EMOJI and 'unlock_love' not in self.flags:
-                continue
+            # if reaction == LOVE_EMOJI and 'unlock_love' not in self.flags:
+            #     continue
             await self.wfr_message.add_reaction(reaction.strip('<>'))
         self.bot.wfr[self.member.id] = self
 
@@ -882,8 +882,8 @@ Best Streak: **{self.tarot_row.best_streak}**
         # self.tarot_row.
         text = ''
         for key, format in readings.items():
-            if key == 'love' and 'unlock_love' not in self.flags:
-                continue
+            # if key == 'love' and 'unlock_love' not in self.flags:
+            #     continue
             text += f'''{format['emoji']} **{format['title']}**
         _{format['text']}_
 

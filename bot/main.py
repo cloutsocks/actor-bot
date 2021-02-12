@@ -58,8 +58,6 @@ class ActorBot(commands.Bot):
             self.bound_extensions.append('yearbook')
             self.bound_extensions.append('scramble')
 
-
-
         if self.config['actor'] == 'trish':
             self.bound_extensions.append('jam')
 
