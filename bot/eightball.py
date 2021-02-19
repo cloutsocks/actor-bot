@@ -58,19 +58,22 @@ def load_8ball_answers(bot_id):
     spreadsheet = gc.open_by_key(config_8ball['sheet_key'])
     worksheet = spreadsheet.worksheet('8ball')
 
+    bot_ids = [int(val) for val in worksheet.row_values(2)]
+
     try:
         cell = worksheet.find(str(bot_id))
     except gspread.exceptions.CellNotFound:
         print(f"Couldn't load 8ball values for id {bot_id}")
-        return []
+        return bot_ids, []
 
     answers = worksheet.col_values(cell.col)
-    return [a for a in answers[2:] if a]
+    return bot_ids, [a for a in answers[2:] if a]
 
 
 class EightBall(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.bot_mentions = []
         self.answers = []
         self.load_answers()
 
@@ -84,7 +87,9 @@ class EightBall(commands.Cog):
             await ctx.send(f'✅ Loaded {self.answers}')
 
     def load_answers(self):
-        self.answers = load_8ball_answers(self.bot.config['id'])
+        bot_ids, answers = load_8ball_answers(self.bot.config['id'])
+        self.bot_mentions = [f'<@!{bot_id}>' for bot_id in bot_ids]
+        self.answers = answers
 
     @commands.command(name='8ball')
     async def eightball(self, ctx, *, arg):
@@ -95,9 +100,18 @@ class EightBall(commands.Cog):
         if (match := filter_hw.search(arg)) is not None:
             return
 
-        r = random.Random(ctx.message.id)
-        actor = r.choice(actors)
-        if actor == self.bot.config['actor']:
+        should_answer = False
+
+        if any(bot_mention in ctx.message.content for bot_mention in self.bot_mentions):
+            if str(self.bot.config['id']) in ctx.message.content:
+                should_answer = True
+        else:
+            r = random.Random(ctx.message.id)
+            actor = r.choice(actors)
+            if actor == self.bot.config['actor']:
+                should_answer = True
+
+        if should_answer:
             response = random.choice(self.answers)
             typing = typing_time(response, 0.05) * random.uniform(0.8, 1.2)
             await actor_send(ctx.channel, response, 0, typing)
