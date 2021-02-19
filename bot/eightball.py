@@ -28,7 +28,11 @@ def typing_time(msg, seconds_per_char):
 actors = [
     'fang',
     'trish',
-    'naomi'
+    'naomi',
+    'naser',
+    'reed',
+    'rosa',
+    'stella'
 ]
 
 filter_hw = re.compile(r'\bhw\b|home\s?work')
