@@ -46,8 +46,8 @@ def load_8ball_answers(bot_id):
     scope = ['https://spreadsheets.google.com/feeds',
              'https://www.googleapis.com/auth/drive']
 
-    credentials = ServiceAccountCredentials.from_json_keyfile_name('../config/puppypost-dae4df89a47e.json', scope)
-    with open('../config/config_8ball.json') as f:
+    credentials = ServiceAccountCredentials.from_json_keyfile_name('config/puppypost-dae4df89a47e.json', scope)
+    with open('config_8ball.json') as f:
         config_8ball = json.load(f)
 
     gc = gspread.authorize(credentials)
