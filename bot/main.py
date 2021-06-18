@@ -44,47 +44,51 @@ class ActorBot(commands.Bot):
 
         load_config(self)
 
-        self.bound_extensions = [
+        self.exts = [
             'common',
             'error',
             'config',
+            'admin',
             'actor',
             'achievements',
         ]
 
+
+        # todo move to extensions config
         if self.config['actor'] == 'tester':
-            self.bound_extensions.append('jam')
-            self.bound_extensions.append('stella')
-            self.bound_extensions.append('yearbook')
-            self.bound_extensions.append('scramble')
+            pass
+            # self.exts.append('naomi')
 
         if self.config['actor'] == 'trish':
-            self.bound_extensions.append('jam')
+            self.exts.append('jam')
 
         if self.config['actor'] == 'rosa':
-            self.bound_extensions.append('halloween')
+            self.exts.append('halloween')
 
         if self.config['actor'] == 'naomi':
-            self.bound_extensions.append('naomi')
-            self.bound_extensions.append('yearbook')
+            self.exts.append('naomi')
+            self.exts.append('yearbook')
 
         if self.config['actor'] == 'stella':
-            self.bound_extensions.append('stella')
+            self.exts.append('stella')
 
         if 'eightball' in self.config:
-            self.bound_extensions.append('eightball')
+            self.exts.append('eightball')
 
-        print(f'Loading extensions: {self.bound_extensions}')
-        for extension in self.bound_extensions:
-            try:
-                self.load_extension(extension)
-            except Exception as e:
-                print(f'Failed to load extension {extension}.', file=sys.stderr)
-                traceback.print_exc()
+
+        for extension in self.exts:
+            self.load(extension)
 
     def clear_wait_fors(self, uid):
         self.wfr.pop(uid, None)
         self.wfm.pop(uid, None)
+
+    def load(self, extension):
+        try:
+            self.load_extension(extension)
+        except Exception as e:
+            print(f'Failed to load extension {extension}.', file=sys.stderr)
+            traceback.print_exc()
 
     async def process_commands(self, message):
         ctx = await self.get_context(message)
@@ -113,6 +117,7 @@ async def on_ready():
     bot.guild = bot.get_guild(bot.config['guild'])
     await bot.change_presence(activity=playing)
 
+    print(bot.exts)
 
 @bot.event
 async def on_reaction_add(reaction, user):
@@ -122,22 +127,6 @@ async def on_reaction_add(reaction, user):
     if user.id in bot.wfr and bot.wfr[user.id].wfr_message.id == reaction.message.id:
         await bot.wfr[user.id].handle_reaction(reaction, user)
         await reaction.message.remove_reaction(reaction, user)
-
-@bot.command(name='reloadall', aliases=['reall', 'ra', 'rt', 'rs'])
-@checks.is_jacob()
-async def _reloadall(ctx, arg=None):
-    """Reloads all modules."""
-
-    bot.wfm = {}
-    bot.wfr = {}
-    try:
-        for extension in bot.bound_extensions:
-            bot.unload_extension(extension)
-            bot.load_extension(extension)
-    except Exception as e:
-        await ctx.send(f'```py\n{traceback.format_exc()}\n```')
-    else:
-        await ctx.send('✅')
 
 
 print('Starting')

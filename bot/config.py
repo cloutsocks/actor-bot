@@ -13,14 +13,16 @@ def load_config(bot):
     with open(os.environ.get('CONFIG_PATH', '../config/config.json')) as f:
         bot.config = json.load(f)
 
-        for key in ['guild', 'interop_cn']:
-            try:
-                bot.config[key] = int(bot.config[key])
-            except Exception:
-                pass
+        for key in bot.config:
+            if type(bot.config[key]) is str:
+                if re.match(r'\d+$', bot.config[key]):
+                    bot.config[key] = int(bot.config[key])
 
-        for key in ['creator_ids', 'admin_ids']:
-            bot.config[key] = [int(val) for val in bot.config[key]]
+            if type(bot.config[key]) is list:
+                bot.config[key] = [int(val) if re.match(r'\d+$', val) else val for val in bot.config[key]]
+
+        # for key in ['creator_ids', 'admin_ids']:
+        #     bot.config[key] = [int(val) for val in bot.config[key]]
 
 
 class Config(commands.Cog):

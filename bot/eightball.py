@@ -12,10 +12,6 @@ from pprint import pprint
 import json
 import gspread
 
-from oauth2client.service_account import ServiceAccountCredentials
-
-
-
 import checks
 
 from common import cn_id_pattern
@@ -47,14 +43,10 @@ async def actor_send(cn, msg, delay, typing):
         await cn.send(msg)
 
 def load_8ball_answers(bot_id):
-    scope = ['https://spreadsheets.google.com/feeds',
-             'https://www.googleapis.com/auth/drive']
-
-    credentials = ServiceAccountCredentials.from_json_keyfile_name('config/puppypost-dae4df89a47e.json', scope)
     with open('config/config_8ball.json') as f:
         config_8ball = json.load(f)
 
-    gc = gspread.authorize(credentials)
+    gc = gspread.service_account(filename='config/service_account.json')
     spreadsheet = gc.open_by_key(config_8ball['sheet_key'])
     worksheet = spreadsheet.worksheet('8ball')
 
