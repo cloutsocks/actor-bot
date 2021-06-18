@@ -47,7 +47,7 @@ class Naomi(commands.Cog):
 
     async def on_load(self):
         self.member_role = self.bot.guild.get_role(self.bot.config['member_role_id'])
-        gc = gspread.service_account(filename='../config/service_account.json')
+        gc = gspread.service_account(filename='config/service_account.json')
         spreadsheet = gc.open_by_key(self.bot.config['sheets']['data'])
         sheet = spreadsheet.worksheet('approve_message')
         lines = sheet.col_values(1)
