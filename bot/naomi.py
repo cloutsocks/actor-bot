@@ -60,8 +60,7 @@ class Naomi(commands.Cog):
             if len(msg) + len(line) > 1990:
                 self.approve_text.append(msg)
                 msg = ''
-            else:
-                msg += line + '\n'
+            msg += line + '\n'
 
         if msg:
             self.approve_text.append(msg)

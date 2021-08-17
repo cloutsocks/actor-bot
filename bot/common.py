@@ -150,7 +150,7 @@ async def find_members(bot, server, query, get_ids=False, use_hackban=False, mem
     if match:
         uid = int(match.group(0))
 
-    match = idPattern.search(query)
+    match = id_pattern.search(query)
     if match:
         uid = int(match.group(1))
 
@@ -280,7 +280,7 @@ def ordinal(num, bold=False):
         suffix = 'th'
     else:
         suffix = {1: 'st', 2: 'nd', 3: 'rd'}.get(num % 10, 'th')
-    return "**{}**{}".format(num, suffix) if bold else str(num) + suffix
+    return f'**{num}**{suffix}' if bold else str(num) + suffix
 
 
 def clamp(n, lo, hi):
