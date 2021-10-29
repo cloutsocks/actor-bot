@@ -57,7 +57,6 @@ class ActorBot(commands.Bot):
         # todo move to extensions config
         if self.config['actor'] == 'tester':
             pass
-            # self.exts.append('naomi')
 
         if self.config['actor'] == 'trish':
             self.exts.append('jam')
@@ -116,6 +115,13 @@ async def on_ready():
     playing = discord.Game(name=status)
     bot.guild = bot.get_guild(bot.config['guild'])
     await bot.change_presence(activity=playing)
+
+    try:
+        bot.exts += bot.config['exts']
+        for ext in bot.config['exts']:
+            bot.load(ext)
+    except Exception:
+        pass
 
     print(bot.exts)
 

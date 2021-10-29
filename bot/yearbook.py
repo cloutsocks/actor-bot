@@ -931,6 +931,7 @@ positions = {
     'witch_cauldron': [1361, 720],
     'dinolantern': [1882, 1029],
     'ghost': [1485, 1247],
+    'zombie_hand': [1860, 1429],
 
 
     'hourglass': [400, 420],
